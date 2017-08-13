@@ -45,8 +45,8 @@ SPADES_SETTING(r_videoWidth);
 SPADES_SETTING(r_videoHeight);
 DEFINE_SPADES_SETTING(r_fullscreen, "0");
 DEFINE_SPADES_SETTING(r_vsync, "1");
-DEFINE_SPADES_SETTING(r_allowSoftwareRendering, "0");
-DEFINE_SPADES_SETTING(r_renderer, "gl");
+DEFINE_SPADES_SETTING(r_allowSoftwareRendering, "1");
+DEFINE_SPADES_SETTING(r_renderer, "sw");
 #ifdef __APPLE__
 DEFINE_SPADES_SETTING(s_audioDriver, "ysr");
 #else
