@@ -313,9 +313,9 @@ int main(int argc, char **argv) {
 
 		// show splash window
 		// NOTE: splash window uses image loader, which assumes backtrace is already initialized.
-		splashWindow.reset(new spades::SplashWindow());
+		// splashWindow.reset(new spades::SplashWindow());
 		auto showSplashWindowTime = SDL_GetTicks();
-		auto pumpEvents = [&splashWindow] { splashWindow->PumpEvents(); };
+		// auto pumpEvents = [&splashWindow] { splashWindow->PumpEvents(); };
 
 		// initialize threads
 		spades::Thread::InitThreadSystem();
@@ -599,17 +599,10 @@ int main(int argc, char **argv) {
 
 		// everything is now ready!
 		if (!g_autoconnect) {
-			if (!((int)cl_showStartupWindow != 0 || splashWindow->IsStartupScreenRequested())) {
 				splashWindow.reset();
 
 				SPLog("Starting main screen");
 				spades::StartMainScreen();
-			} else {
-				splashWindow.reset();
-
-				SPLog("Starting startup window");
-				::spades::gui::StartupScreen::Run();
-			}
 		} else {
 			splashWindow.reset();
 
