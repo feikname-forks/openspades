@@ -590,7 +590,7 @@ int main(int argc, char **argv) {
 		SDL_InitSubSystem(SDL_INIT_VIDEO);
 
 		// we want to show splash window at least for some time...
-		pumpEvents();
+		// pumpEvents();
 		auto ticks = SDL_GetTicks();
 		if (ticks < showSplashWindowTime + 1500) {
 			SDL_Delay(showSplashWindowTime + 1500 - ticks);
