@@ -79,8 +79,6 @@ Would you like to reinstall? (type y or n)"								# ask to reinstall
 
  read reinstall												# prompt
 
-fi
-
 if [ $reinstall = y ]											# check whether or not to reinstall
 then
  echo "Uninstalling old version..."
@@ -99,6 +97,7 @@ else
  sleep 1
  echo "Exiting..."
  exit													# user did not want to reinstall openspades
+fi
 fi
 
 if [ -d ~/OpensPides ]											# check if installation folder already exists
@@ -262,7 +261,7 @@ sleep 2
 if [ -d ~/OpensPides/OpensPides ]									# check for previous openspades folder
 then
  echo "Previous installation found.  Deleting and redownloading..."
- rm -rf ~/OpensPides/OpensPides										# delete previous folder
+ sudo rm -rf ~/OpensPides/OpensPides										# delete previous folder
 else
  echo "Downloading OpenSpades..."
 fi
