@@ -1,4 +1,4 @@
-# OpenSpades [![Build status](https://travis-ci.org/yvt/openspades.svg?branch=master)](https://travis-ci.org/yvt/openspades) [![All releases downloads](https://img.shields.io/github/downloads/yvt/openspades/total.svg)](https://github.com/yvt/openspades/releases) [![Latest release](https://img.shields.io/github/release/yvt/openspades.svg)](https://github.com/yvt/openspades/releases) [![Crowdin](https://d322cqt584bo4o.cloudfront.net/openspades/localized.svg)](https://crowdin.com/project/openspades)
+# OpensPides [![Build status](https://travis-ci.org/yvt/openspades.svg?branch=master)](https://travis-ci.org/yvt/openspades) [![All releases downloads](https://img.shields.io/github/downloads/yvt/openspades/total.svg)](https://github.com/yvt/openspades/releases) [![Latest release](https://img.shields.io/github/release/yvt/openspades.svg)](https://github.com/yvt/openspades/releases) [![Crowdin](https://d322cqt584bo4o.cloudfront.net/openspades/localized.svg)](https://crowdin.com/project/openspades)
 
 
 ![OpenSpades banner](https://openspadesmedia.yvt.jp/brand/OpenSpadesBanner.jpg)
@@ -12,13 +12,44 @@ OpenSpades is a compatible client of Ace of Spades 0.75.
 * Uses OpenGL/AL for better experience.
 * Open source, and cross platform.
 
+OpensPides is simply a clone of OpenSpades, with a few slight tweaks to get it to run on the Pi
+
 ## How to Build/Install?
 **Before you start:** In case you're having issues to build OpenSpades, it may be because this README file is outdated, if so:
 
- 1. See the [Building Guide](https://github.com/yvt/openspades/wiki/Building), which may be up to date
- 2. Or [open an issue](https://github.com/yvt/openspades/issues) if the problem persists
+ 1. See the [Building Guide](https://github.com/R2D2FISH/OpensPides/wiki/Building), which may be up to date
+ 2. Or [open an issue](https://github.com/R2D2FISH/OpensPides/issues) if the problem persists
 
-### On Linux
+### On Linux/Raspberry Pi
+
+#### Installer
+This version of OpenSpades comes with an installer which should allow you to install OpenSpades on the Raspberry Pi without any tweaking.
+
+Requirements:
+ -Raspberry Pi 2 or 3 (Might work on other Pi's, but probably not at a speed that makes it worth trying.)
+ -Raspbian
+ -Sudo privileges
+ -An internet connection
+ -Adequate storage space on your Hard Drive (Hopefully at least 500MB, not sure...).  A flash drive is preferred as opposed to
+  an SD Card as the primary drive
+ -Patience.  The Installer will take a few hours to run
+
+First, download the installer with:
+
+```wget https://github.com/R2D2FISH/OpensPides/blob/af823707219f253f230238ab8e7367720de38808/openspades-installer.sh```
+
+Then navigate to the directory where the installer was created, and type:
+
+```bash openspades-installer.sh```
+
+Although you can run the installer as root, it is not recommended, as you will be unable to access the installer's files.
+
+The installer has a few notable command line arguments.  If you do not want it to attempt to update your system to the latest version, add `-noupdate`.  To prevent it from installing its dependencies (for whatever reason) add `-nodependencies`.  To prevent it from installing SDL or SDL_image, add `-nosdl` and `-nosdl_image`, respectively.
+
+The installer can also be used to reinstall or update OpensPides.  As long as you do not delete the files in the ~/OpensPides/InstallerFiles directory, it will automatically skip reinstalling its dependencies.  And if the Pi crashes mid-installation, the program picks up where it left off.
+
+The installer can also be used on a non-Pi Linux system, but this is not recommended.
+
 #### Snap package
 On [snap enabled](https://snapcraft.io/docs/core/install) systems, the latest pre-built stable release of OpenSpades can be installed with:
 
