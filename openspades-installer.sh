@@ -207,7 +207,7 @@ sleep 2
 	echo "Building..."
 	make												# build SDL
 	echo "Installing..."
-	# sudo make install										 install SDL
+	sudo make install										 install SDL
 	touch ~/OpensPides/InstallerFiles/sdl								# mark SDL as installed
 	fi
 fi
@@ -245,7 +245,7 @@ sleep 2
 	 echo "Building..."
 	 make												# build SDL_Image
 	 echo "Installing..."
-	 # sudo make install										 install SDL_Image
+	 sudo make install										 install SDL_Image
 	 touch ~/OpensPides/InstallerFiles/sdl_image							# mark SDL_Image as installed
 	fi
 fi
