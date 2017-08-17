@@ -65,7 +65,7 @@ FILE __iob_func[3] = {*stdin, *stdout, *stderr};
 }
 #endif
 
-DEFINE_SPADES_SETTING(cl_showStartupWindow, "1");
+DEFINE_SPADES_SETTING(cl_showStartupWindow);
 
 #ifdef WIN32
 // windows.h must be included before DbgHelp.h and shlobj.h.
@@ -313,9 +313,9 @@ int main(int argc, char **argv) {
 
 		// show splash window
 		// NOTE: splash window uses image loader, which assumes backtrace is already initialized.
-		// splashWindow.reset(new spades::SplashWindow());
+		//splashWindow.reset(new spades::SplashWindow());
 		auto showSplashWindowTime = SDL_GetTicks();
-		// auto pumpEvents = [&splashWindow] { splashWindow->PumpEvents(); };
+		auto pumpEvents = [&splashWindow] { splashWindow->PumpEvents(); };
 
 		// initialize threads
 		spades::Thread::InitThreadSystem();
@@ -590,7 +590,7 @@ int main(int argc, char **argv) {
 		SDL_InitSubSystem(SDL_INIT_VIDEO);
 
 		// we want to show splash window at least for some time...
-		// pumpEvents();
+		pumpEvents();
 		auto ticks = SDL_GetTicks();
 		if (ticks < showSplashWindowTime + 1500) {
 			SDL_Delay(showSplashWindowTime + 1500 - ticks);
