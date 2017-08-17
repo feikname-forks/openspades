@@ -56,13 +56,14 @@ if(ANDROID)
         endif(CMAKE_ASM_COMPILER_WORKS)
 endif()
 
-if(^arm)
-        enable_language(ASM)
-        if(CMAKE_ASM_COMPILER_WORKS)
-                set(ANGELSCRIPT_SOURCE ${ANGELSCRIPT_SOURCE} ../../source/as_callfunc_arm.cpp ../../source/as_callfunc_arm_gcc.S)
-        else()
-                message(FATAL ERROR "Android target requires a working assembler")
-        endif(CMAKE_ASM_COMPILER_WORKS)
+if(${CMAKE_SYSTEM_PROCESSOR} MATCHES "^arm")
+   enable_language(ASM)
+   if(CMAKE_ASM_COMPILER_WORKS)
+       set(ANGELSCRIPT_SOURCE ${ANGELSCRIPT_SOURCE} ../../source/as_callfunc_arm.cpp ../../source/as_callfunc_arm_gcc.S)
+       set_property(SOURCE ../../source/as_callfunc_arm_gcc.S APPEND PROPERTY COMPILE_FLAGS " -Wa,-mimplicit-it=always")
+   else()
+       message(FATAL ERROR "ARM target requires a working assembler")
+   endif()
 endif()
 
 set(ANGELSCRIPT_HEADERS
@@ -123,4 +124,5 @@ if(MSVC)
 endif(MSVC)
 
 set(RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/../../bin)
+
 
