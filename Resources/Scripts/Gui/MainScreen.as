@@ -22,11 +22,8 @@
 #include "CreateProfileScreen.as"
 
 namespace spades {
-
-
 	class MainScreenUI {
 		private Renderer@ renderer;
-		private AudioDevice@ audioDevice;
 		FontManager@ fontManager;
 		MainScreenHelper@ helper;
 
@@ -41,15 +38,14 @@ namespace spades {
         private ConfigItem cg_playerName("cg_playerName");
         private ConfigItem cg_playerNameIsSet("cg_playerNameIsSet", "0");
 
-		MainScreenUI(Renderer@ renderer, AudioDevice@ audioDevice, FontManager@ fontManager, MainScreenHelper@ helper) {
+		MainScreenUI(Renderer@ renderer, FontManager@ fontManager, MainScreenHelper@ helper) {
 			@this.renderer = renderer;
-			@this.audioDevice = audioDevice;
 			@this.fontManager = fontManager;
 			@this.helper = helper;
 
 			SetupRenderer();
 
-			@manager = spades::ui::UIManager(renderer, audioDevice);
+			@manager = spades::ui::UIManager(renderer);
 			@manager.RootElement.Font = fontManager.GuiFont;
 
 			@mainMenu = MainScreenMainMenu(this);
@@ -831,8 +827,8 @@ namespace spades {
 		}
 	}
 
-	MainScreenUI@ CreateMainScreenUI(Renderer@ renderer, AudioDevice@ audioDevice,
+	MainScreenUI@ CreateMainScreenUI(Renderer@ renderer,
 		FontManager@ fontManager, MainScreenHelper@ helper) {
-		return MainScreenUI(renderer, audioDevice, fontManager, helper);
+		return MainScreenUI(renderer, fontManager, helper);
 	}
 }

@@ -93,73 +93,21 @@
 		}
 
 		private Renderer@ renderer;
-		private AudioDevice@ audioDevice;
 		private Model@ model;
-		private AudioChunk@[] fireSounds(3);
-		private AudioChunk@ fireFarSound;
-		private AudioChunk@ fireStereoSound;
-		private AudioChunk@ fireSmallReverbSound;
-		private AudioChunk@ fireLargeReverbSound;
-		private AudioChunk@ reloadSound;
 
-		ThirdPersonRifleSkin(Renderer@ r, AudioDevice@ dev) {
+		ThirdPersonRifleSkin(Renderer@ r) {
 			@renderer = r;
-			@audioDevice = dev;
 			@model = renderer.RegisterModel
 				("Models/Weapons/Rifle/Weapon.kv6");
-
-			@fireSounds[0] = dev.RegisterSound
-				("Sounds/Weapons/Rifle/Fire1.opus");
-			@fireSounds[1] = dev.RegisterSound
-				("Sounds/Weapons/Rifle/Fire2.opus");
-			@fireSounds[2] = dev.RegisterSound
-				("Sounds/Weapons/Rifle/Fire3.opus");
-			@fireFarSound = dev.RegisterSound
-				("Sounds/Weapons/Rifle/FireFar.opus");
-			@fireStereoSound = dev.RegisterSound
-				("Sounds/Weapons/Rifle/FireStereo.opus");
-			@reloadSound = dev.RegisterSound
-				("Sounds/Weapons/Rifle/Reload.opus");
-
-			@fireSmallReverbSound = dev.RegisterSound
-				("Sounds/Weapons/Rifle/V2AmbienceSmall.opus");
-			@fireLargeReverbSound = dev.RegisterSound
-				("Sounds/Weapons/Rifle/V2AmbienceLarge.opus");
 		}
 
 		void Update(float dt) {
 		}
 
 		void WeaponFired(){
-			if(!muted){
-				Vector3 origin = soundOrigin;
-				AudioParam param;
-				param.volume = 20.f;
-				audioDevice.Play(fireSounds[GetRandom(fireSounds.length)], origin, param);
-
-				param.volume = 20.f * environmentRoom;
-				if (environmentSize < 0.5f) {
-					audioDevice.Play(fireSmallReverbSound, origin, param);
-				} else {
-					audioDevice.Play(fireLargeReverbSound, origin, param);
-				}
-
-				param.volume = 1.f;
-				param.referenceDistance = 26.f;
-				audioDevice.Play(fireFarSound, origin, param);
-				param.referenceDistance = 4.f;
-				param.volume = 1.f;
-				audioDevice.Play(fireStereoSound, origin, param);
-			}
 		}
 
 		void ReloadingWeapon() {
-			if(!muted){
-				Vector3 origin = soundOrigin;
-				AudioParam param;
-				param.volume = 0.2f;
-				audioDevice.Play(reloadSound, origin, param);
-			}
 		}
 
 		void ReloadedWeapon() {
@@ -176,7 +124,7 @@
 		}
 	}
 
-	IWeaponSkin@ CreateThirdPersonRifleSkin(Renderer@ r, AudioDevice@ dev) {
-		return ThirdPersonRifleSkin(r, dev);
+	IWeaponSkin@ CreateThirdPersonRifleSkin(Renderer@ r) {
+		return ThirdPersonRifleSkin(r);
 	}
 }

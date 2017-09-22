@@ -27,9 +27,6 @@
 #include <Core/Strings.h>
 #include <Core/Strings.h>
 
-#include "IAudioChunk.h"
-#include "IAudioDevice.h"
-
 #include "CTFGameMode.h"
 #include "GameMap.h"
 #include "IGameMode.h"
@@ -69,12 +66,6 @@ namespace spades {
 
 		void Client::PlayerCreatedBlock(spades::client::Player *p) {
 			SPADES_MARK_FUNCTION();
-
-			if (!IsMuted()) {
-				Handle<IAudioChunk> c =
-				  audioDevice->RegisterSound("Sounds/Weapons/Block/Build.opus");
-				audioDevice->Play(c, p->GetEye() + p->GetFront(), AudioParam());
-			}
 		}
 
 		void Client::TeamCapturedTerritory(int teamId, int terId) {
@@ -103,18 +94,6 @@ namespace spades {
 				NetLog("%s", msg.c_str());
 				centerMessageView->AddMessage(msg);
 			}
-
-			if (world->GetLocalPlayer() && !IsMuted()) {
-				if (teamId == world->GetLocalPlayer()->GetTeamId()) {
-					Handle<IAudioChunk> chunk =
-					  audioDevice->RegisterSound("Sounds/Feedback/TC/YourTeamCaptured.opus");
-					audioDevice->PlayLocal(chunk, AudioParam());
-				} else {
-					Handle<IAudioChunk> chunk =
-					  audioDevice->RegisterSound("Sounds/Feedback/TC/EnemyCaptured.opus");
-					audioDevice->PlayLocal(chunk, AudioParam());
-				}
-			}
 		}
 
 		void Client::PlayerCapturedIntel(spades::client::Player *p) {
@@ -135,18 +114,6 @@ namespace spades {
 				NetLog("%s", msg.c_str());
 				centerMessageView->AddMessage(msg);
 			}
-
-			if (world->GetLocalPlayer() && !IsMuted()) {
-				if (p->GetTeamId() == world->GetLocalPlayer()->GetTeamId()) {
-					Handle<IAudioChunk> chunk =
-					  audioDevice->RegisterSound("Sounds/Feedback/CTF/YourTeamCaptured.opus");
-					audioDevice->PlayLocal(chunk, AudioParam());
-				} else {
-					Handle<IAudioChunk> chunk =
-					  audioDevice->RegisterSound("Sounds/Feedback/CTF/EnemyCaptured.opus");
-					audioDevice->PlayLocal(chunk, AudioParam());
-				}
-			}
 		}
 
 		void Client::PlayerPickedIntel(spades::client::Player *p) {
@@ -165,12 +132,6 @@ namespace spades {
 				msg = _Tr("Client", "{0} picked up {1}'s Intel.", holderName, otherTeamName);
 				NetLog("%s", msg.c_str());
 				centerMessageView->AddMessage(msg);
-			}
-
-			if (!IsMuted()) {
-				Handle<IAudioChunk> chunk =
-				  audioDevice->RegisterSound("Sounds/Feedback/CTF/PickedUp.opus");
-				audioDevice->PlayLocal(chunk, AudioParam());
 			}
 		}
 
@@ -200,11 +161,6 @@ namespace spades {
 				return;
 			;
 
-			Handle<IAudioChunk> c = audioDevice->RegisterSound("Sounds/Misc/BlockDestroy.opus");
-			if (!IsMuted()) {
-				audioDevice->Play(c, origin, AudioParam());
-			}
-
 			uint32_t col = map->GetColor(blk.x, blk.y, blk.z);
 			IntVector3 colV = {(uint8_t)col, (uint8_t)(col >> 8), (uint8_t)(col >> 16)};
 
@@ -213,11 +169,6 @@ namespace spades {
 
 		void Client::PlayerDiggedBlock(spades::IntVector3 blk) {
 			Vector3 origin = {blk.x + .5f, blk.y + .5f, blk.z + .5f};
-
-			Handle<IAudioChunk> c = audioDevice->RegisterSound("Sounds/Misc/BlockDestroy.opus");
-			if (!IsMuted()) {
-				audioDevice->Play(c, origin, AudioParam());
-			}
 
 			for (int z = blk.z - 1; z <= blk.z + 1; z++) {
 				if (z < 0 || z > 61)
@@ -300,18 +251,6 @@ namespace spades {
 			centerMessageView->AddMessage(msg);
 
 			scriptedUI->RecordChatLog(msg, MakeVector4(1.f, 1.f, 1.f, 0.8f));
-
-			if (world->GetLocalPlayer()) {
-				if (teamId == world->GetLocalPlayer()->GetTeamId()) {
-					Handle<IAudioChunk> chunk =
-					  audioDevice->RegisterSound("Sounds/Feedback/Win.opus");
-					audioDevice->PlayLocal(chunk, AudioParam());
-				} else {
-					Handle<IAudioChunk> chunk =
-					  audioDevice->RegisterSound("Sounds/Feedback/Lose.opus");
-					audioDevice->PlayLocal(chunk, AudioParam());
-				}
-			}
 		}
 	}
 }

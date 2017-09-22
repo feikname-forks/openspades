@@ -77,13 +77,11 @@
 		}
 		
 		private Renderer@ renderer;
-		private AudioDevice@ audioDevice;
 		private Model@ model;
 		private Image@ sightImage;
 		
-		ViewSpadeSkin(Renderer@ r, AudioDevice@ dev) {
+		ViewSpadeSkin(Renderer@ r) {
 			@renderer = r;
-			@audioDevice = dev;
 			@model = renderer.RegisterModel
 				("Models/Weapons/Spade/Spade.kv6");
 			@sightImage = renderer.RegisterImage
@@ -180,7 +178,7 @@
 		}
 	}
 	
-	ISpadeSkin@ CreateViewSpadeSkin(Renderer@ r, AudioDevice@ dev) {
-		return ViewSpadeSkin(r, dev);
+	ISpadeSkin@ CreateViewSpadeSkin(Renderer@ r) {
+		return ViewSpadeSkin(r);
 	}
 }

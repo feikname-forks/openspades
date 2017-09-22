@@ -93,81 +93,23 @@
 		}
 
 		private Renderer@ renderer;
-		private AudioDevice@ audioDevice;
 		private Model@ model;
 
-		private AudioChunk@ fireSound;
-		private AudioChunk@ fireFarSound;
-		private AudioChunk@ fireStereoSound;
-		private AudioChunk@ fireSmallReverbSound;
-		private AudioChunk@ fireLargeReverbSound;
-		private AudioChunk@ reloadSound;
-		private AudioChunk@ cockSound;
-
-		ThirdPersonShotgunSkin(Renderer@ r, AudioDevice@ dev) {
+		ThirdPersonShotgunSkin(Renderer@ r) {
 			@renderer = r;
-			@audioDevice = dev;
 			@model = renderer.RegisterModel
 				("Models/Weapons/Shotgun/Weapon.kv6");
-
-			@fireSound = dev.RegisterSound
-				("Sounds/Weapons/Shotgun/Fire.opus");
-			@fireFarSound = dev.RegisterSound
-				("Sounds/Weapons/Shotgun/FireFar.opus");
-			@fireStereoSound = dev.RegisterSound
-				("Sounds/Weapons/Shotgun/FireStereo.opus");
-			@reloadSound = dev.RegisterSound
-				("Sounds/Weapons/Shotgun/Reload.opus");
-			@cockSound = dev.RegisterSound
-				("Sounds/Weapons/Shotgun/Cock.opus");
-
-			@fireSmallReverbSound = dev.RegisterSound
-				("Sounds/Weapons/Shotgun/V2AmbienceSmall.opus");
-			@fireLargeReverbSound = dev.RegisterSound
-				("Sounds/Weapons/Shotgun/V2AmbienceLarge.opus");
 		}
 
 		void Update(float dt) {
 		}
 
 		void WeaponFired(){
-			if(!muted){
-				Vector3 origin = soundOrigin;
-				AudioParam param;
-				param.volume = 8.f;
-				audioDevice.Play(fireSound, origin, param);
-
-				param.volume = 8.f * environmentRoom;
-				if (environmentSize < 0.5f) {
-					audioDevice.Play(fireSmallReverbSound, origin, param);
-				} else {
-					audioDevice.Play(fireLargeReverbSound, origin, param);
-				}
-
-				param.volume = 2.f;
-				param.referenceDistance = 4.f;
-				audioDevice.Play(fireFarSound, origin, param);
-				param.referenceDistance = 1.f;
-				audioDevice.Play(fireStereoSound, origin, param);
-
-			}
 		}
 		void ReloadingWeapon() {
-			if(!muted){
-				Vector3 origin = soundOrigin;
-				AudioParam param;
-				param.volume = 0.2f;
-				audioDevice.Play(reloadSound, origin, param);
-			}
 		}
 
 		void ReloadedWeapon() {
-			if(!muted){
-				Vector3 origin = originMatrix * Vector3(0.f, 0.f, 0.f);
-				AudioParam param;
-				param.volume = 0.2f;
-				audioDevice.Play(cockSound, origin, param);
-			}
 		}
 
 		void AddToScene() {
@@ -181,7 +123,7 @@
 		}
 	}
 
-	IWeaponSkin@ CreateThirdPersonShotgunSkin(Renderer@ r, AudioDevice@ dev) {
-		return ThirdPersonShotgunSkin(r, dev);
+	IWeaponSkin@ CreateThirdPersonShotgunSkin(Renderer@ r) {
+		return ThirdPersonShotgunSkin(r);
 	}
 }

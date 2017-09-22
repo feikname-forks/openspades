@@ -22,8 +22,6 @@
 
 #include "Client.h"
 #include "Fonts.h"
-#include "IAudioChunk.h"
-#include "IAudioDevice.h"
 #include "IFont.h"
 #include "IImage.h"
 #include "IRenderer.h"
@@ -104,10 +102,6 @@ namespace spades {
 				for (size_t i = 0; i < items.size(); i++) {
 					MenuItem &item = items[i];
 					if (item.hover) {
-						IAudioDevice *dev = client->audioDevice;
-						Handle<IAudioChunk> chunk =
-						  dev->RegisterSound("Sounds/Feedback/Limbo/Select.opus");
-						dev->PlayLocal(chunk, AudioParam());
 						switch (item.type) {
 							case MenuTeam1: selectedTeam = 0; break;
 							case MenuTeam2: selectedTeam = 1; break;
@@ -162,12 +156,6 @@ namespace spades {
 				bool newHover = item.rect && cursorPos;
 				if (!item.visible)
 					newHover = false;
-				if (newHover && !item.hover) {
-					IAudioDevice *dev = client->audioDevice;
-					Handle<IAudioChunk> chunk =
-					  dev->RegisterSound("Sounds/Feedback/Limbo/Hover.opus");
-					dev->PlayLocal(chunk, AudioParam());
-				}
 				item.hover = newHover;
 			}
 		}

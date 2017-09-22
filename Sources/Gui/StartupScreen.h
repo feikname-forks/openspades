@@ -21,7 +21,6 @@
 #pragma once
 
 #include "View.h"
-#include <Client/IAudioDevice.h>
 #include <Client/IRenderer.h>
 #include <Core/RefCountedObject.h>
 #include <ScriptBindings/ScriptManager.h>
@@ -36,7 +35,6 @@ namespace spades {
 			friend class StartupScreenHelper;
 
 			Handle<client::IRenderer> renderer;
-			Handle<client::IAudioDevice> audioDevice;
 			Handle<client::FontManager> fontManager;
 			float timeToStartInitialization;
 			bool startRequested = false;
@@ -55,11 +53,10 @@ namespace spades {
 			~StartupScreen();
 
 		public:
-			StartupScreen(client::IRenderer *, client::IAudioDevice *, StartupScreenHelper *helper,
+			StartupScreen(client::IRenderer *, StartupScreenHelper *helper,
 			              client::FontManager *fontManager);
 
 			client::IRenderer *GetRenderer() { return &*renderer; }
-			client::IAudioDevice *GetAudioDevice() { return &*audioDevice; }
 
 			void MouseEvent(float x, float y) override;
 			void KeyEvent(const std::string &, bool down) override;

@@ -22,24 +22,14 @@
 	class ViewSMGSkin:
 	IToolSkin, IViewToolSkin, IWeaponSkin, IWeaponSkin2,
 	BasicViewWeapon {
-
-		private AudioDevice@ audioDevice;
 		private Model@ gunModel;
 		private Model@ magazineModel;
 		private Model@ sightModel1;
 		private Model@ sightModel2;
 		private Model@ sightModel3;
 
-		private AudioChunk@[] fireSounds(4);
-		private AudioChunk@ fireFarSound;
-		private AudioChunk@ fireStereoSound;
-		private AudioChunk@[] fireSmallReverbSounds(4);
-		private AudioChunk@[] fireLargeReverbSounds(4);
-		private AudioChunk@ reloadSound;
-
-		ViewSMGSkin(Renderer@ r, AudioDevice@ dev){
+		ViewSMGSkin(Renderer@ r){
 			super(r);
-			@audioDevice = dev;
 			@gunModel = renderer.RegisterModel
 				("Models/Weapons/SMG/WeaponNoMagazine.kv6");
 			@magazineModel = renderer.RegisterModel
@@ -50,40 +40,6 @@
 				("Models/Weapons/SMG/Sight2.kv6");
 			@sightModel3 = renderer.RegisterModel
 				("Models/Weapons/SMG/Sight3.kv6");
-
-			@fireSmallReverbSounds[0] = dev.RegisterSound
-				("Sounds/Weapons/SMG/V2AmbienceSmall1.opus");
-			@fireSmallReverbSounds[1] = dev.RegisterSound
-				("Sounds/Weapons/SMG/V2AmbienceSmall2.opus");
-			@fireSmallReverbSounds[2] = dev.RegisterSound
-				("Sounds/Weapons/SMG/V2AmbienceSmall3.opus");
-			@fireSmallReverbSounds[3] = dev.RegisterSound
-				("Sounds/Weapons/SMG/V2AmbienceSmall4.opus");
-
-			@fireLargeReverbSounds[0] = dev.RegisterSound
-				("Sounds/Weapons/SMG/V2AmbienceLarge1.opus");
-			@fireLargeReverbSounds[1] = dev.RegisterSound
-				("Sounds/Weapons/SMG/V2AmbienceLarge2.opus");
-			@fireLargeReverbSounds[2] = dev.RegisterSound
-				("Sounds/Weapons/SMG/V2AmbienceLarge3.opus");
-			@fireLargeReverbSounds[3] = dev.RegisterSound
-				("Sounds/Weapons/SMG/V2AmbienceLarge4.opus");
-
-			@fireSounds[0] = dev.RegisterSound
-				("Sounds/Weapons/SMG/V2Local1.opus");
-			@fireSounds[1] = dev.RegisterSound
-				("Sounds/Weapons/SMG/V2Local2.opus");
-			@fireSounds[2] = dev.RegisterSound
-				("Sounds/Weapons/SMG/V2Local3.opus");
-			@fireSounds[3] = dev.RegisterSound
-				("Sounds/Weapons/SMG/V2Local4.opus");
-			@fireFarSound = dev.RegisterSound
-				("Sounds/Weapons/SMG/FireFar.opus");
-			@fireStereoSound = dev.RegisterSound
-				("Sounds/Weapons/SMG/FireStereo.opus");
-			@reloadSound = dev.RegisterSound
-				("Sounds/Weapons/SMG/ReloadLocal.opus");
-
 		}
 
 		void Update(float dt) {
@@ -92,29 +48,9 @@
 
 		void WeaponFired(){
 			BasicViewWeapon::WeaponFired();
-
-			if(!IsMuted){
-				Vector3 origin = Vector3(0.4f, -0.3f, 0.5f);
-				AudioParam param;
-				param.volume = 8.f;
-				audioDevice.PlayLocal(fireSounds[GetRandom(fireSounds.length)], origin, param);
-
-				param.volume = 8.f * environmentRoom;
-				if (environmentSize < 0.5f) {
-					audioDevice.PlayLocal(fireSmallReverbSounds[GetRandom(fireSmallReverbSounds.length)], origin, param);
-				} else {
-					audioDevice.PlayLocal(fireLargeReverbSounds[GetRandom(fireLargeReverbSounds.length)], origin, param);
-				}
-			}
 		}
 
 		void ReloadingWeapon() {
-			if(!IsMuted){
-				Vector3 origin = Vector3(0.4f, -0.3f, 0.5f);
-				AudioParam param;
-				param.volume = 0.2f;
-				audioDevice.PlayLocal(reloadSound, origin, param);
-			}
 		}
 
 		float GetZPos() {
@@ -224,7 +160,7 @@
 
 	}
 
-	IWeaponSkin@ CreateViewSMGSkin(Renderer@ r, AudioDevice@ dev) {
-		return ViewSMGSkin(r, dev);
+	IWeaponSkin@ CreateViewSMGSkin(Renderer@ r) {
+		return ViewSMGSkin(r);
 	}
 }

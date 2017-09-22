@@ -72,8 +72,8 @@ namespace spades {
 				Runner *r;
 
 			protected:
-				virtual View *CreateView(client::IRenderer *renderer, client::IAudioDevice *dev) {
-					return r->CreateView(renderer, dev);
+				virtual View *CreateView(client::IRenderer *renderer) {
+					return r->CreateView(renderer);
 				}
 
 			public:

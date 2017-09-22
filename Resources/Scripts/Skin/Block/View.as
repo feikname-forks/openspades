@@ -77,13 +77,11 @@
 		}
 		
 		private Renderer@ renderer;
-		private AudioDevice@ audioDevice;
 		private Model@ model;
 		private Image@ sightImage;
 		
-		ViewBlockSkin(Renderer@ r, AudioDevice@ dev) {
+		ViewBlockSkin(Renderer@ r) {
 			@renderer = r;
-			@audioDevice = dev;
 			@model = renderer.RegisterModel
 				("Models/Weapons/Block/Block2.kv6");
 			@sightImage = renderer.RegisterImage
@@ -134,7 +132,7 @@
 		}
 	}
 	
-	IBlockSkin@ CreateViewBlockSkin(Renderer@ r, AudioDevice@ dev) {
-		return ViewBlockSkin(r, dev);
+	IBlockSkin@ CreateViewBlockSkin(Renderer@ r) {
+		return ViewBlockSkin(r);
 	}
 }

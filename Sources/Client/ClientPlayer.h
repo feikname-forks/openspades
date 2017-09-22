@@ -33,7 +33,6 @@ namespace spades {
 
 		class Client;
 		class IRenderer;
-		class IAudioDevice;
 
 		class SandboxedRenderer;
 
@@ -85,8 +84,7 @@ namespace spades {
 
 			bool ShouldRenderInThirdPersonView();
 
-			asIScriptObject *initScriptFactory(ScriptFunction &creator, IRenderer *renderer,
-			                                   IAudioDevice *audio);
+			asIScriptObject *initScriptFactory(ScriptFunction &creator, IRenderer *renderer);
 
 		protected:
 			~ClientPlayer();

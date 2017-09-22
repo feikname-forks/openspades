@@ -35,7 +35,6 @@ namespace spades {
 
 	class ClientUI {
 		private Renderer@ renderer;
-		private AudioDevice@ audioDevice;
 		FontManager@ fontManager;
 		ClientUIHelper@ helper;
 
@@ -52,13 +51,12 @@ namespace spades {
 
 		private float time = -1.f;
 
-		ClientUI(Renderer@ renderer, AudioDevice@ audioDevice, FontManager@ fontManager, ClientUIHelper@ helper) {
+		ClientUI(Renderer@ renderer, FontManager@ fontManager, ClientUIHelper@ helper) {
 			@this.renderer = renderer;
-			@this.audioDevice = audioDevice;
 			@this.fontManager = fontManager;
 			@this.helper = helper;
 
-			@manager = spades::ui::UIManager(renderer, audioDevice);
+			@manager = spades::ui::UIManager(renderer);
 			@manager.RootElement.Font = fontManager.GuiFont;
 
 			@clientMenu = ClientMenu(this);
@@ -782,11 +780,10 @@ namespace spades {
 
 			UIElement::Render();
 		}
-
 	}
 
-	ClientUI@ CreateClientUI(Renderer@ renderer, AudioDevice@ audioDevice,
+	ClientUI@ CreateClientUI(Renderer@ renderer,
 		FontManager@ fontManager, ClientUIHelper@ helper) {
-		return ClientUI(renderer, audioDevice, fontManager, helper);
+		return ClientUI(renderer, fontManager, helper);
 	}
 }

@@ -23,11 +23,8 @@
 #include "UpdateCheckView.as"
 
 namespace spades {
-
-
 	class StartupScreenUI {
 		private Renderer@ renderer;
-		private AudioDevice@ audioDevice;
 		FontManager@ fontManager;
 		StartupScreenHelper@ helper;
 
@@ -37,15 +34,14 @@ namespace spades {
 
 		bool shouldExit = false;
 
-		StartupScreenUI(Renderer@ renderer, AudioDevice@ audioDevice, FontManager@ fontManager, StartupScreenHelper@ helper) {
+		StartupScreenUI(Renderer@ renderer, FontManager@ fontManager, StartupScreenHelper@ helper) {
 			@this.renderer = renderer;
-			@this.audioDevice = audioDevice;
 			@this.fontManager = fontManager;
 			@this.helper = helper;
 
 			SetupRenderer();
 
-			@manager = spades::ui::UIManager(renderer, audioDevice);
+			@manager = spades::ui::UIManager(renderer);
 			@manager.RootElement.Font = fontManager.GuiFont;
 			Init();
 		}
@@ -130,7 +126,6 @@ namespace spades {
 	}
 
 	class StartupScreenMainMenu: spades::ui::UIElement {
-
 		StartupScreenUI@ ui;
 		StartupScreenHelper@ helper;
 
@@ -138,7 +133,6 @@ namespace spades {
 		spades::ui::CheckBox@ bypassStartupWindowCheck;
 
 		StartupScreenGraphicsTab@ graphicsTab;
-		StartupScreenAudioTab@ audioTab;
 		StartupScreenGenericTab@ genericTab;
 		StartupScreenSystemInfoTab@ systemInfoTab;
 		StartupScreenAdvancedTab@ advancedTab;
@@ -179,27 +173,22 @@ namespace spades {
 
 			AABB2 clientArea(10.f, 100.f, width - 20.f, height - 150.f);
 			StartupScreenGraphicsTab graphicsTab(ui, clientArea.max - clientArea.min);
-			StartupScreenAudioTab audioTab(ui, clientArea.max - clientArea.min);
 			StartupScreenGenericTab genericTab(ui, clientArea.max - clientArea.min);
 			StartupScreenSystemInfoTab profileTab(ui, clientArea.max - clientArea.min);
 			StartupScreenAdvancedTab advancedTab(ui, clientArea.max - clientArea.min);
 			graphicsTab.Bounds = clientArea;
-			audioTab.Bounds = clientArea;
 			genericTab.Bounds = clientArea;
 			profileTab.Bounds = clientArea;
 			advancedTab.Bounds = clientArea;
 			AddChild(graphicsTab);
-			AddChild(audioTab);
 			AddChild(genericTab);
 			AddChild(profileTab);
 			AddChild(advancedTab);
-			audioTab.Visible = false;
 			profileTab.Visible = false;
 			genericTab.Visible = false;
 			advancedTab.Visible = false;
 
 			@this.graphicsTab = graphicsTab;
-			@this.audioTab = audioTab;
 			@this.advancedTab = advancedTab;
 			@this.systemInfoTab = profileTab;
 			@this.genericTab = genericTab;
@@ -209,7 +198,6 @@ namespace spades {
 				AddChild(tabStrip);
 				tabStrip.Bounds = AABB2(10.f, 70.f, width - 20.f, 24.f);
 				tabStrip.AddItem(_Tr("StartupScreen", "Graphics"), graphicsTab);
-				tabStrip.AddItem(_Tr("StartupScreen", "Audio"), audioTab);
 				tabStrip.AddItem(_Tr("StartupScreen", "Generic"), genericTab);
 				tabStrip.AddItem(_Tr("StartupScreen", "System Info"), profileTab);
 				tabStrip.AddItem(_Tr("StartupScreen", "Advanced"), advancedTab);
@@ -247,7 +235,6 @@ namespace spades {
 			}
 
 			this.graphicsTab.LoadConfig();
-			this.audioTab.LoadConfig();
 			this.genericTab.LoadConfig();
 			this.advancedTab.LoadConfig();
 		}
@@ -256,8 +243,6 @@ namespace spades {
 			StartupScreenMainMenuState state;
 			if (this.graphicsTab.Visible) {
 				state.ActiveTabIndex = 0;
-			} else if (this.audioTab.Visible) {
-				state.ActiveTabIndex = 1;
 			} else if (this.genericTab.Visible) {
 				state.ActiveTabIndex = 2;
 			} else if (this.systemInfoTab.Visible) {
@@ -270,7 +255,6 @@ namespace spades {
 
 		void SetState(StartupScreenMainMenuState@ state) {
 			this.graphicsTab.Visible = state.ActiveTabIndex == 0;
-			this.audioTab.Visible = state.ActiveTabIndex == 1;
 			this.genericTab.Visible = state.ActiveTabIndex == 2;
 			this.systemInfoTab.Visible = state.ActiveTabIndex == 3;
 			this.advancedTab.Visible = state.ActiveTabIndex == 4;
@@ -1456,159 +1440,6 @@ namespace spades {
 		}
 	}
 
-
-	class StartupScreenAudioTab: spades::ui::UIElement, LabelAddable {
-		StartupScreenUI@ ui;
-		StartupScreenHelper@ helper;
-
-		spades::ui::RadioButton@ driverOpenAL;
-		spades::ui::RadioButton@ driverYSR;
-		spades::ui::RadioButton@ driverNull;
-
-		spades::ui::TextViewer@ helpView;
-		StartupScreenConfigView@ configViewOpenAL;
-		StartupScreenConfigView@ configViewYSR;
-
-		private ConfigItem s_audioDriver("s_audioDriver");
-		private ConfigItem s_eax("s_eax");
-
-		StartupScreenAudioTab(StartupScreenUI@ ui, Vector2 size) {
-			super(ui.manager);
-			@this.ui = ui;
-			@helper = ui.helper;
-
-			float mainWidth = size.x - 250.f;
-
-			{
-				spades::ui::TextViewer e(Manager);
-				e.Bounds = AABB2(mainWidth + 10.f, 0.f, size.x - mainWidth - 10.f, size.y);
-				@e.Font = ui.fontManager.GuiFont;
-				e.Text = _Tr("StartupScreen", "Audio Settings");
-				AddChild(e);
-				@helpView = e;
-			}
-
-
-			AddLabel(0.f, 0.f, 24.f, _Tr("StartupScreen", "Backend"));
-			{
-				spades::ui::RadioButton e(Manager);
-				e.Caption = _Tr("StartupScreen", "OpenAL");
-				e.Bounds = AABB2(100.f, 0.f, 100.f, 24.f);
-				e.GroupName = "driver";
-				HelpHandler(helpView,
-					_Tr("StartupScreen", "Uses an OpenAL-capable sound card to process sound. "
-					"In most cases where there isn't such a sound card, software emulation is "
-					"used.")).Watch(e);
-				@e.Activated = spades::ui::EventHandler(this.OnDriverOpenAL);
-				AddChild(e);
-				@driverOpenAL = e;
-			}
-			{
-				spades::ui::RadioButton e(Manager);
-				e.Caption = _Tr("StartupScreen", "YSR");
-				e.Bounds = AABB2(210.f, 0.f, 100.f, 24.f);
-				e.GroupName = "driver";
-				HelpHandler(helpView,
-					_Tr("StartupScreen", "YSR is an experimental 3D HDR sound engine optimized "
-					"for OpenSpades. It features several enhanced features including "
-					"automatic load control, dynamics compressor, HRTF-based "
-					"3D audio, and high quality reverb.")).Watch(e);
-				@e.Activated = spades::ui::EventHandler(this.OnDriverYSR);
-				AddChild(e);
-				@driverYSR = e;
-			}
-			{
-				spades::ui::RadioButton e(Manager);
-				//! The name of audio driver that outputs no audio.
-				e.Caption = _Tr("StartupScreen", "Null");
-				e.Bounds = AABB2(320.f, 0.f, 100.f, 24.f);
-				e.GroupName = "driver";
-				HelpHandler(helpView,
-					_Tr("StartupScreen", "Disables audio output.")).Watch(e);
-				@e.Activated = spades::ui::EventHandler(this.OnDriverNull);
-				AddChild(e);
-				@driverNull = e;
-			}
-
-			{
-				StartupScreenConfigView cfg(Manager);
-
-				cfg.AddRow(StartupScreenConfigSliderItemEditor(ui,
-					StartupScreenConfig(ui, "s_maxPolyphonics"), 16.0, 256.0, 8.0,
-					_Tr("StartupScreen", "Polyphonics"), _Tr("StartupScreen",
-					"Specifies how many sounds can be played simultaneously. "
-					"Higher value needs more processing power, so setting this too high might "
-					"cause an overload (especially with a software emulation)."),
-					ConfigNumberFormatter(0, " poly")));
-
-				cfg.AddRow(StartupScreenConfigCheckItemEditor(ui,
-					StartupScreenConfig(ui, "s_eax"), "0", "1",
-					_Tr("StartupScreen", "EAX"), _Tr("StartupScreen",
-					"Enables extended features provided by the OpenAL driver to create "
-					"more ambience.")));
-
-				cfg.Finalize();
-				cfg.SetHelpTextHandler(HelpTextHandler(this.HandleHelpText));
-				cfg.Bounds = AABB2(0.f, 30.f, mainWidth, size.y - 30.f);
-				AddChild(cfg);
-				@configViewOpenAL = cfg;
-			}
-
-			{
-				StartupScreenConfigView cfg(Manager);
-
-				cfg.AddRow(StartupScreenConfigSliderItemEditor(ui,
-					StartupScreenConfig(ui, "s_maxPolyphonics"), 16.0, 256.0, 8.0,
-					_Tr("StartupScreen", "Polyphonics"), _Tr("StartupScreen",
-					"Specifies how many sounds can be played simultaneously. "
-					"No matter what value is set, YSR might reduce the number of sounds "
-					"when an overload is detected."),
-					ConfigNumberFormatter(0, " poly")));
-
-
-				cfg.Finalize();
-				cfg.SetHelpTextHandler(HelpTextHandler(this.HandleHelpText));
-				cfg.Bounds = AABB2(0.f, 30.f, mainWidth, size.y - 30.f);
-				AddChild(cfg);
-				@configViewYSR = cfg;
-			}
-
-		}
-
-		private void HandleHelpText(string text) {
-			helpView.Text = text;
-		}
-
-		private void OnDriverOpenAL(spades::ui::UIElement@){ s_audioDriver.StringValue = "openal"; LoadConfig(); }
-		private void OnDriverYSR(spades::ui::UIElement@){ s_audioDriver.StringValue = "ysr"; LoadConfig(); }
-		private void OnDriverNull(spades::ui::UIElement@){ s_audioDriver.StringValue = "null"; LoadConfig(); }
-
-		void LoadConfig() {
-			if(s_audioDriver.StringValue == "ysr") {
-				driverYSR.Check();
-				configViewOpenAL.Visible = false;
-				configViewYSR.Visible = true;
-			}else if(s_audioDriver.StringValue == "openal"){
-				driverOpenAL.Check();
-				configViewOpenAL.Visible = true;
-				configViewYSR.Visible = false;
-			}else if(s_audioDriver.StringValue == "null"){
-				driverNull.Check();
-				configViewOpenAL.Visible = false;
-				configViewYSR.Visible = false;
-			}
-			driverOpenAL.Enable = ui.helper.CheckConfigCapability("s_audioDriver", "openal").length == 0;
-			driverYSR.Enable = ui.helper.CheckConfigCapability("s_audioDriver", "ysr").length == 0;
-			driverNull.Enable = ui.helper.CheckConfigCapability("s_audioDriver", "null").length == 0;
-			configViewOpenAL.LoadConfig();
-			configViewYSR.LoadConfig();
-
-		}
-
-
-
-	}
-
 	class StartupScreenGenericTab: spades::ui::UIElement, LabelAddable {
 		StartupScreenUI@ ui;
 		StartupScreenHelper@ helper;
@@ -1672,7 +1503,7 @@ namespace spades {
 
 		private void OnResetSettingsPressed(spades::ui::UIElement@) {
 			string msg = _Tr("StartupScreen", "Are you sure to reset all settings? They include (but are not limited to):") + "\n" +
-				"- " + _Tr("StartupScreen", "All graphics/audio settings") + "\n" +
+				"- " + _Tr("StartupScreen", "All graphics settings") + "\n" +
 				"- " + _Tr("StartupScreen", "All key bindings") + "\n" +
 				"- " + _Tr("StartupScreen", "Your player name") + "\n" +
 				"- " + _Tr("StartupScreen", "Other advanced settings only accessible through '{0}' tab and in-game commands",
@@ -1893,14 +1724,10 @@ namespace spades {
 			configView.LoadConfig();
 
 		}
-
-
-
 	}
 
-
-	StartupScreenUI@ CreateStartupScreenUI(Renderer@ renderer, AudioDevice@ audioDevice,
+	StartupScreenUI@ CreateStartupScreenUI(Renderer@ renderer,
 		FontManager@ fontManager, StartupScreenHelper@ helper) {
-		return StartupScreenUI(renderer, audioDevice, fontManager, helper);
+		return StartupScreenUI(renderer, fontManager, helper);
 	}
 }

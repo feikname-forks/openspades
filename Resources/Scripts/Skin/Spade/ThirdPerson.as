@@ -70,12 +70,10 @@
 		}
 		
 		private Renderer@ renderer;
-		private AudioDevice@ audioDevice;
 		private Model@ model;
 		
-		ThirdPersonSpadeSkin(Renderer@ r, AudioDevice@ dev) {
+		ThirdPersonSpadeSkin(Renderer@ r) {
 			@renderer = r;
-			@audioDevice = dev;
 			@model = renderer.RegisterModel
 				("Models/Weapons/Spade/Spade.kv6");
 		}
@@ -86,10 +84,8 @@
 		void AddToScene() {
 			Matrix4 mat = CreateScaleMatrix(0.05f);
 			
-			
 			mat = CreateRotateMatrix(Vector3(0.f,0.f,1.f), Pi) * mat;
 			mat = CreateTranslateMatrix(0.35f, -1.f, 0.f) * mat;
-			
 			
 			ModelRenderParam param;
 			param.matrix = originMatrix * mat;
@@ -97,7 +93,7 @@
 		}
 	}
 	
-	ISpadeSkin@ CreateThirdPersonSpadeSkin(Renderer@ r, AudioDevice@ dev) {
-		return ThirdPersonSpadeSkin(r, dev);
+	ISpadeSkin@ CreateThirdPersonSpadeSkin(Renderer@ r) {
+		return ThirdPersonSpadeSkin(r);
 	}
 }

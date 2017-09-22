@@ -25,9 +25,6 @@
 #include "SDLRunner.h"
 
 #include "SDLGLDevice.h"
-#include <Audio/ALDevice.h>
-#include <Audio/NullDevice.h>
-#include <Audio/YsrDevice.h>
 #include <Client/Client.h>
 #include <Core/ConcurrentDispatch.h>
 #include <Core/Debug.h>
@@ -56,23 +53,9 @@ DEFINE_SPADES_SETTING(cl_fps, "0");
 
 namespace spades {
 	namespace gui {
-
 		SDLRunner::SDLRunner() : m_hasSystemMenu(false) {}
 
 		SDLRunner::~SDLRunner() {}
-
-		client::IAudioDevice *SDLRunner::CreateAudioDevice() {
-			if (EqualsIgnoringCase(s_audioDriver, "openal")) {
-				return new audio::ALDevice();
-			} else if (EqualsIgnoringCase(s_audioDriver, "ysr")) {
-				return new audio::YsrDevice();
-			} else if (EqualsIgnoringCase(s_audioDriver, "null")) {
-				return new audio::NullDevice();
-			} else {
-				SPRaise("Unknown audio driver name: %s (openal or ysr expected)",
-				        s_audioDriver.CString());
-			}
-		}
 
 		std::string SDLRunner::TranslateButton(Uint8 b) {
 			SPADES_MARK_FUNCTION();
@@ -175,10 +158,10 @@ namespace spades {
 			}
 		}
 
-		void SDLRunner::RunClientLoop(spades::client::IRenderer *renderer,
-		                              spades::client::IAudioDevice *audio) {
+		void SDLRunner::RunClientLoop(spades::client::IRenderer *renderer
+		                              ) {
 			{
-				Handle<View> view(CreateView(renderer, audio), false);
+				Handle<View> view(CreateView(renderer), false);
 				Uint32 ot = SDL_GetTicks();
 				bool running = true;
 
@@ -491,9 +474,8 @@ namespace spades {
 
 				{
 					Handle<client::IRenderer> renderer(CreateRenderer(window), false);
-					Handle<client::IAudioDevice> audio(CreateAudioDevice(), false);
 
-					RunClientLoop(renderer, audio);
+					RunClientLoop(renderer);
 				}
 			} catch (...) {
 				SDL_Quit();

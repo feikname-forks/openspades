@@ -31,8 +31,6 @@
 #include "StartupScreenHelper.h"
 
 #include "StartupScreen.h"
-#include <Audio/ALDevice.h>
-#include <Audio/YsrDevice.h>
 #include <Core/FileManager.h>
 #include <Core/Settings.h>
 #include <OpenSpades.h>
@@ -135,35 +133,7 @@ namespace spades {
 				}
 			}
 
-			// check audio device availability
-			// Note: this only checks whether these libraries can be loaded.
-
-			SPLog("Checking YSR availability");
-			if (!audio::YsrDevice::TryLoadYsr()) {
-				incapableConfigs.insert(
-				  std::make_pair("s_audioDriver", [](std::string value) -> std::string {
-					  if (EqualsIgnoringCase(value, "ysr")) {
-						  return "YSR library couldn't be loaded.";
-					  } else {
-						  return std::string();
-					  }
-				  }));
-			}
-
-			SPLog("Checking OpenAL availability");
-			if (!audio::ALDevice::TryLoad()) {
-				incapableConfigs.insert(
-				  std::make_pair("s_audioDriver", [](std::string value) -> std::string {
-					  if (EqualsIgnoringCase(value, "openal")) {
-						  return "OpenAL library couldn't be loaded.";
-					  } else {
-						  return std::string();
-					  }
-				  }));
-			}
-
 			// check GL capabilities
-
 			SPLog("Performing ecapability query");
 
 			int idDisplay = 0;

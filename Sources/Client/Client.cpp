@@ -30,8 +30,8 @@
 #include <Core/Settings.h>
 #include <Core/Strings.h>
 
-#include "IAudioChunk.h"
-#include "IAudioDevice.h"
+
+
 
 #include "CenterMessageView.h"
 #include "ChatWindow.h"
@@ -68,10 +68,9 @@ namespace spades {
 		std::mt19937_64 mt_engine_client(
 		  r_device_client()); // Seed Mersenne twister with non-deterministic 32-bit seed
 
-		Client::Client(IRenderer *r, IAudioDevice *audioDev, const ServerAddress &host,
+		Client::Client(IRenderer *r, const ServerAddress &host,
 		               FontManager *fontManager)
 		    : renderer(r),
-		      audioDevice(audioDev),
 			  playerName(cg_playerName.operator std::string().substr(0, 15)),
 		      hasDelayedReload(false),
 		      hostname(host),
@@ -134,7 +133,7 @@ namespace spades {
 			limbo.reset(new LimboView(this));
 			paletteView.reset(new PaletteView(this));
 			tcView.reset(new TCProgressView(this));
-			scriptedUI.Set(new ClientUI(renderer, audioDev, fontManager, this), false);
+			scriptedUI.Set(new ClientUI(renderer, fontManager, this), false);
 
 			renderer->SetGameMap(nullptr);
 		}
@@ -167,7 +166,6 @@ namespace spades {
 			if (world) {
 				world->SetListener(nullptr);
 				renderer->SetGameMap(nullptr);
-				audioDevice->SetGameMap(nullptr);
 				world = nullptr;
 				map = nullptr;
 			}
@@ -189,7 +187,9 @@ namespace spades {
 				world->SetListener(this);
 				map = world->GetMap();
 				renderer->SetGameMap(map);
-				audioDevice->SetGameMap(map);
+
+
+
 				NetLog("------ World Loaded ------");
 			} else {
 
@@ -229,7 +229,7 @@ namespace spades {
 			RemoveAllCorpses();
 
 			renderer->SetGameMap(nullptr);
-			audioDevice->SetGameMap(nullptr);
+
 
 			for (size_t i = 0; i < clientPlayers.size(); i++) {
 				if (clientPlayers[i]) {
@@ -260,52 +260,6 @@ namespace spades {
 			renderer->RegisterImage("Textures/Fluid.png");
 			renderer->RegisterImage("Textures/WaterExpl.png");
 			renderer->RegisterImage("Gfx/White.tga");
-			audioDevice->RegisterSound("Sounds/Weapons/Block/Build.opus");
-			audioDevice->RegisterSound("Sounds/Weapons/Impacts/FleshLocal1.opus");
-			audioDevice->RegisterSound("Sounds/Weapons/Impacts/FleshLocal2.opus");
-			audioDevice->RegisterSound("Sounds/Weapons/Impacts/FleshLocal3.opus");
-			audioDevice->RegisterSound("Sounds/Weapons/Impacts/FleshLocal4.opus");
-			audioDevice->RegisterSound("Sounds/Misc/SwitchMapZoom.opus");
-			audioDevice->RegisterSound("Sounds/Misc/OpenMap.opus");
-			audioDevice->RegisterSound("Sounds/Misc/CloseMap.opus");
-			audioDevice->RegisterSound("Sounds/Player/Flashlight.opus");
-			audioDevice->RegisterSound("Sounds/Player/Footstep1.opus");
-			audioDevice->RegisterSound("Sounds/Player/Footstep2.opus");
-			audioDevice->RegisterSound("Sounds/Player/Footstep3.opus");
-			audioDevice->RegisterSound("Sounds/Player/Footstep4.opus");
-			audioDevice->RegisterSound("Sounds/Player/Footstep5.opus");
-			audioDevice->RegisterSound("Sounds/Player/Footstep6.opus");
-			audioDevice->RegisterSound("Sounds/Player/Footstep7.opus");
-			audioDevice->RegisterSound("Sounds/Player/Footstep8.opus");
-			audioDevice->RegisterSound("Sounds/Player/Wade1.opus");
-			audioDevice->RegisterSound("Sounds/Player/Wade2.opus");
-			audioDevice->RegisterSound("Sounds/Player/Wade3.opus");
-			audioDevice->RegisterSound("Sounds/Player/Wade4.opus");
-			audioDevice->RegisterSound("Sounds/Player/Wade5.opus");
-			audioDevice->RegisterSound("Sounds/Player/Wade6.opus");
-			audioDevice->RegisterSound("Sounds/Player/Wade7.opus");
-			audioDevice->RegisterSound("Sounds/Player/Wade8.opus");
-			audioDevice->RegisterSound("Sounds/Player/Run1.opus");
-			audioDevice->RegisterSound("Sounds/Player/Run2.opus");
-			audioDevice->RegisterSound("Sounds/Player/Run3.opus");
-			audioDevice->RegisterSound("Sounds/Player/Run4.opus");
-			audioDevice->RegisterSound("Sounds/Player/Run5.opus");
-			audioDevice->RegisterSound("Sounds/Player/Run6.opus");
-			audioDevice->RegisterSound("Sounds/Player/Run7.opus");
-			audioDevice->RegisterSound("Sounds/Player/Run8.opus");
-			audioDevice->RegisterSound("Sounds/Player/Run9.opus");
-			audioDevice->RegisterSound("Sounds/Player/Run10.opus");
-			audioDevice->RegisterSound("Sounds/Player/Run11.opus");
-			audioDevice->RegisterSound("Sounds/Player/Run12.opus");
-			audioDevice->RegisterSound("Sounds/Player/Jump.opus");
-			audioDevice->RegisterSound("Sounds/Player/Land.opus");
-			audioDevice->RegisterSound("Sounds/Player/WaterJump.opus");
-			audioDevice->RegisterSound("Sounds/Player/WaterLand.opus");
-			audioDevice->RegisterSound("Sounds/Weapons/SwitchLocal.opus");
-			audioDevice->RegisterSound("Sounds/Weapons/Switch.opus");
-			audioDevice->RegisterSound("Sounds/Weapons/Restock.opus");
-			audioDevice->RegisterSound("Sounds/Weapons/RestockLocal.opus");
-			audioDevice->RegisterSound("Sounds/Weapons/AimDownSightLocal.opus");
 			renderer->RegisterImage("Gfx/Ball.png");
 			renderer->RegisterModel("Models/Player/Dead.kv6");
 			renderer->RegisterImage("Gfx/Spotlight.png");
@@ -338,7 +292,6 @@ namespace spades {
 			renderer->RegisterImage("Gfx/CircleGradient.png");
 			renderer->RegisterImage("Gfx/HurtSprite.png");
 			renderer->RegisterImage("Gfx/HurtRing2.png");
-			audioDevice->RegisterSound("Sounds/Feedback/Chat.opus");
 
 			if (mumbleLink.init())
 				SPLog("Mumble linked");
@@ -442,14 +395,6 @@ namespace spades {
 			SceneDefinition sceneDef = CreateSceneDefinition();
 			lastSceneDef = sceneDef;
 
-			// Update sounds
-			try {
-				audioDevice->Respatialize(sceneDef.viewOrigin, sceneDef.viewAxis[2],
-				                          sceneDef.viewAxis[1]);
-			} catch (const std::exception &ex) {
-				SPLog("Audio subsystem returned error (ignored):\n%s", ex.what());
-			}
-
 			// render scene
 			DrawScene();
 
@@ -531,8 +476,7 @@ namespace spades {
 		}
 
 		void Client::PlayAlertSound() {
-			Handle<IAudioChunk> chunk = audioDevice->RegisterSound("Sounds/Feedback/Alert.opus");
-			audioDevice->PlayLocal(chunk, AudioParam());
+			return;
 		}
 
 		/** Records chat message/game events to the log file. */
@@ -661,11 +605,6 @@ namespace spades {
 			else
 				NetLog("[Team] %s (%s): %s", p->GetName().c_str(),
 				       world->GetTeam(p->GetTeamId()).name.c_str(), msg.c_str());
-
-			if ((!IsMuted()) && (int)cg_chatBeep) {
-				Handle<IAudioChunk> chunk = audioDevice->RegisterSound("Sounds/Feedback/Chat.opus");
-				audioDevice->PlayLocal(chunk, AudioParam());
-			}
 		}
 
 		void Client::ServerSentMessage(const std::string &msg) {

@@ -27,8 +27,6 @@
 #include "GameMap.h"
 #include "GunCasing.h"
 #include "GunCasing.h"
-#include "IAudioChunk.h"
-#include "IAudioDevice.h"
 #include "IImage.h"
 #include "IModel.h"
 #include "IRenderer.h"
@@ -215,59 +213,58 @@ namespace spades {
 
 			ScriptContextHandle ctx;
 			IRenderer *renderer = client->GetRenderer();
-			IAudioDevice *audio = client->GetAudioDevice();
 
 			sandboxedRenderer.Set(new SandboxedRenderer(renderer), false);
 			renderer = sandboxedRenderer;
 
 			static ScriptFunction spadeFactory(
-			  "ISpadeSkin@ CreateThirdPersonSpadeSkin(Renderer@, AudioDevice@)");
-			spadeSkin = initScriptFactory(spadeFactory, renderer, audio);
+			  "ISpadeSkin@ CreateThirdPersonSpadeSkin(Renderer@)");
+			spadeSkin = initScriptFactory(spadeFactory, renderer);
 
 			static ScriptFunction spadeViewFactory(
-			  "ISpadeSkin@ CreateViewSpadeSkin(Renderer@, AudioDevice@)");
-			spadeViewSkin = initScriptFactory(spadeViewFactory, renderer, audio);
+			  "ISpadeSkin@ CreateViewSpadeSkin(Renderer@");
+			spadeViewSkin = initScriptFactory(spadeViewFactory, renderer);
 
 			static ScriptFunction blockFactory(
-			  "IBlockSkin@ CreateThirdPersonBlockSkin(Renderer@, AudioDevice@)");
-			blockSkin = initScriptFactory(blockFactory, renderer, audio);
+			  "IBlockSkin@ CreateThirdPersonBlockSkin(Renderer@)");
+			blockSkin = initScriptFactory(blockFactory, renderer);
 
 			static ScriptFunction blockViewFactory(
-			  "IBlockSkin@ CreateViewBlockSkin(Renderer@, AudioDevice@)");
-			blockViewSkin = initScriptFactory(blockViewFactory, renderer, audio);
+			  "IBlockSkin@ CreateViewBlockSkin(Renderer@)");
+			blockViewSkin = initScriptFactory(blockViewFactory, renderer);
 
 			static ScriptFunction grenadeFactory(
-			  "IGrenadeSkin@ CreateThirdPersonGrenadeSkin(Renderer@, AudioDevice@)");
-			grenadeSkin = initScriptFactory(grenadeFactory, renderer, audio);
+			  "IGrenadeSkin@ CreateThirdPersonGrenadeSkin(Renderer@)");
+			grenadeSkin = initScriptFactory(grenadeFactory, renderer);
 
 			static ScriptFunction grenadeViewFactory(
-			  "IGrenadeSkin@ CreateViewGrenadeSkin(Renderer@, AudioDevice@)");
-			grenadeViewSkin = initScriptFactory(grenadeViewFactory, renderer, audio);
+			  "IGrenadeSkin@ CreateViewGrenadeSkin(Renderer@)");
+			grenadeViewSkin = initScriptFactory(grenadeViewFactory, renderer);
 
 			static ScriptFunction rifleFactory(
-			  "IWeaponSkin@ CreateThirdPersonRifleSkin(Renderer@, AudioDevice@)");
+			  "IWeaponSkin@ CreateThirdPersonRifleSkin(Renderer@)");
 			static ScriptFunction smgFactory(
-			  "IWeaponSkin@ CreateThirdPersonSMGSkin(Renderer@, AudioDevice@)");
+			  "IWeaponSkin@ CreateThirdPersonSMGSkin(Renderer@)");
 			static ScriptFunction shotgunFactory(
-			  "IWeaponSkin@ CreateThirdPersonShotgunSkin(Renderer@, AudioDevice@)");
+			  "IWeaponSkin@ CreateThirdPersonShotgunSkin(Renderer@)");
 			static ScriptFunction rifleViewFactory(
-			  "IWeaponSkin@ CreateViewRifleSkin(Renderer@, AudioDevice@)");
+			  "IWeaponSkin@ CreateViewRifleSkin(Renderer@)");
 			static ScriptFunction smgViewFactory(
-			  "IWeaponSkin@ CreateViewSMGSkin(Renderer@, AudioDevice@)");
+			  "IWeaponSkin@ CreateViewSMGSkin(Renderer@)");
 			static ScriptFunction shotgunViewFactory(
-			  "IWeaponSkin@ CreateViewShotgunSkin(Renderer@, AudioDevice@)");
+			  "IWeaponSkin@ CreateViewShotgunSkin(Renderer@)");
 			switch (p->GetWeapon()->GetWeaponType()) {
 				case RIFLE_WEAPON:
-					weaponSkin = initScriptFactory(rifleFactory, renderer, audio);
-					weaponViewSkin = initScriptFactory(rifleViewFactory, renderer, audio);
+					weaponSkin = initScriptFactory(rifleFactory, renderer);
+					weaponViewSkin = initScriptFactory(rifleViewFactory, renderer);
 					break;
 				case SMG_WEAPON:
-					weaponSkin = initScriptFactory(smgFactory, renderer, audio);
-					weaponViewSkin = initScriptFactory(smgViewFactory, renderer, audio);
+					weaponSkin = initScriptFactory(smgFactory, renderer);
+					weaponViewSkin = initScriptFactory(smgViewFactory, renderer);
 					break;
 				case SHOTGUN_WEAPON:
-					weaponSkin = initScriptFactory(shotgunFactory, renderer, audio);
-					weaponViewSkin = initScriptFactory(shotgunViewFactory, renderer, audio);
+					weaponSkin = initScriptFactory(shotgunFactory, renderer);
+					weaponViewSkin = initScriptFactory(shotgunViewFactory, renderer);
 					break;
 				default: SPAssert(false);
 			}
@@ -285,10 +282,10 @@ namespace spades {
 		}
 
 		asIScriptObject *ClientPlayer::initScriptFactory(ScriptFunction &creator,
-		                                                 IRenderer *renderer, IAudioDevice *audio) {
+		                                                 IRenderer *renderer) {
 			ScriptContextHandle ctx = creator.Prepare();
 			ctx->SetArgObject(0, reinterpret_cast<void *>(renderer));
-			ctx->SetArgObject(1, reinterpret_cast<void *>(audio));
+
 			ctx.ExecuteChecked();
 			asIScriptObject *result = reinterpret_cast<asIScriptObject *>(ctx->GetReturnObject());
 			result->AddRef();
@@ -358,45 +355,7 @@ namespace spades {
 				toolRaiseState -= dt * 4.f;
 				if (toolRaiseState < 0.f) {
 					toolRaiseState = 0.f;
-					currentTool = player->GetTool();
-
-					// play tool change sound
-					if (player->IsLocalPlayer()) {
-						auto *audioDevice = client->GetAudioDevice();
-						Handle<IAudioChunk> c;
-						switch (player->GetTool()) {
-							case Player::ToolSpade:
-								c = audioDevice->RegisterSound(
-								  "Sounds/Weapons/Spade/RaiseLocal.opus");
-								break;
-							case Player::ToolBlock:
-								c = audioDevice->RegisterSound(
-								  "Sounds/Weapons/Block/RaiseLocal.opus");
-								break;
-							case Player::ToolWeapon:
-								switch (player->GetWeapon()->GetWeaponType()) {
-									case RIFLE_WEAPON:
-										c = audioDevice->RegisterSound(
-										  "Sounds/Weapons/Rifle/RaiseLocal.opus");
-										break;
-									case SMG_WEAPON:
-										c = audioDevice->RegisterSound(
-										  "Sounds/Weapons/SMG/RaiseLocal.opus");
-										break;
-									case SHOTGUN_WEAPON:
-										c = audioDevice->RegisterSound(
-										  "Sounds/Weapons/Shotgun/RaiseLocal.opus");
-										break;
-								}
-
-								break;
-							case Player::ToolGrenade:
-								c = audioDevice->RegisterSound(
-								  "Sounds/Weapons/Grenade/RaiseLocal.opus");
-								break;
-						}
-						audioDevice->PlayLocal(c, MakeVector3(.4f, -.3f, .5f), AudioParam());
-					}
+					currentTool = player->GetTool();		
 				} else if (toolRaiseState > 1.f) {
 					toolRaiseState = 1.f;
 				}
@@ -1166,7 +1125,6 @@ namespace spades {
 			Vector3 muzzle;
 			const SceneDefinition &lastSceneDef = client->GetLastSceneDef();
 			IRenderer *renderer = client->GetRenderer();
-			IAudioDevice *audioDevice = client->GetAudioDevice();
 			Player *p = player;
 
 			// make dlight
@@ -1182,55 +1140,6 @@ namespace spades {
 				client->MuzzleFire(vec, player->GetFront(), player == world->GetLocalPlayer());
 			}
 
-			if (cg_ejectBrass) {
-				float dist = (player->GetOrigin() - lastSceneDef.viewOrigin).GetPoweredLength();
-				if (dist < 130.f * 130.f) {
-					IModel *model = NULL;
-					Handle<IAudioChunk> snd = NULL;
-					Handle<IAudioChunk> snd2 = NULL;
-					switch (player->GetWeapon()->GetWeaponType()) {
-						case RIFLE_WEAPON:
-							model = renderer->RegisterModel("Models/Weapons/Rifle/Casing.kv6");
-							snd =
-							  (mt_engine_client() & 0x1000)
-							    ? audioDevice->RegisterSound("Sounds/Weapons/Rifle/ShellDrop1.opus")
-							    : audioDevice->RegisterSound(
-							        "Sounds/Weapons/Rifle/ShellDrop2.opus");
-							snd2 =
-							  audioDevice->RegisterSound("Sounds/Weapons/Rifle/ShellWater.opus");
-							break;
-						case SHOTGUN_WEAPON:
-							// FIXME: don't want to show shotgun't casing
-							// because it isn't ejected when firing
-							// model = renderer->RegisterModel("Models/Weapons/Shotgun/Casing.kv6");
-							break;
-						case SMG_WEAPON:
-							model = renderer->RegisterModel("Models/Weapons/SMG/Casing.kv6");
-							snd =
-							  (mt_engine_client() & 0x1000)
-							    ? audioDevice->RegisterSound("Sounds/Weapons/SMG/ShellDrop1.opus")
-							    : audioDevice->RegisterSound("Sounds/Weapons/SMG/ShellDrop2.opus");
-							snd2 = audioDevice->RegisterSound("Sounds/Weapons/SMG/ShellWater.opus");
-							break;
-					}
-					if (model) {
-						Vector3 origin;
-						origin = muzzle - p->GetFront() * 0.5f;
-
-						Vector3 vel;
-						vel = p->GetFront() * 0.5f + p->GetRight() + p->GetUp() * 0.2f;
-						switch (p->GetWeapon()->GetWeaponType()) {
-							case SMG_WEAPON: vel -= p->GetFront() * 0.7f; break;
-							case SHOTGUN_WEAPON: vel *= .5f; break;
-							default: break;
-						}
-
-						ILocalEntity *ent;
-						ent = new GunCasing(client, model, snd, snd2, origin, p->GetFront(), vel);
-						client->AddLocalEntity(ent);
-					}
-				}
-			}
 
 			// sound ambience estimation
 			auto ambience = ComputeAmbience();

@@ -47,8 +47,6 @@ namespace spades {
 		class World;
 		struct PlayerInput;
 		struct WeaponInput;
-		class IAudioDevice;
-		class IAudioChunk;
 		class NetClient;
 		class IFont;
 		class FontManager;
@@ -111,7 +109,6 @@ namespace spades {
 			Handle<GameMap> map;
 			std::unique_ptr<GameMapWrapper> mapWrapper;
 			Handle<IRenderer> renderer;
-			Handle<IAudioDevice> audioDevice;
 			float time;
 			bool readyToClose;
 			float worldSubFrame;
@@ -296,7 +293,7 @@ namespace spades {
 			virtual ~Client();
 
 		public:
-			Client(IRenderer *, IAudioDevice *, const ServerAddress &host, FontManager *);
+			Client(IRenderer *, const ServerAddress &host, FontManager *);
 
 			virtual void RunFrame(float dt);
 
@@ -316,7 +313,6 @@ namespace spades {
 
 			IRenderer *GetRenderer() { return renderer; }
 			SceneDefinition GetLastSceneDef() { return lastSceneDef; }
-			IAudioDevice *GetAudioDevice() { return audioDevice; }
 
 			virtual bool WantsToBeClosed();
 			bool IsMuted();
