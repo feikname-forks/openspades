@@ -27,7 +27,6 @@ namespace spades {
 		/** Manages all input/output and rendering of the UI framework. */
 		class UIManager {
 			private Renderer@ renderer;
-			private AudioDevice@ audioDevice;
 
 			Vector2 MouseCursorPosition;
 			UIElement@ RootElement;
@@ -57,13 +56,8 @@ namespace spades {
 				get final { return renderer; }
 			}
 
-			AudioDevice@ AudioDevice {
-				get final { return audioDevice; }
-			}
-
-			UIManager(Renderer@ renderer, AudioDevice@ audioDevice) {
+			UIManager(Renderer@ renderer) {
 				@this.renderer = renderer;
-				@this.audioDevice = audioDevice;
 
 				@RootElement = UIElement(this);
 				RootElement.Size = Vector2(renderer.ScreenWidth, renderer.ScreenHeight);
@@ -326,9 +320,6 @@ namespace spades {
 			}
 
 			void PlaySound(string filename) {
-				if(audioDevice !is null) {
-					audioDevice.PlayLocal(audioDevice.RegisterSound(filename), AudioParam());
-				}
 			}
 
 			void RunFrame(float dt) {

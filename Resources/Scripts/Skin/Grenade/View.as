@@ -77,13 +77,11 @@
 		}
 		
 		private Renderer@ renderer;
-		private AudioDevice@ audioDevice;
 		private Model@ model;
 		private Image@ sightImage;
 		
-		ViewGrenadeSkin(Renderer@ r, AudioDevice@ dev) {
+		ViewGrenadeSkin(Renderer@ r) {
 			@renderer = r;
-			@audioDevice = dev;
 			@model = renderer.RegisterModel
 				("Models/Weapons/Grenade/Grenade.kv6");
 			@sightImage = renderer.RegisterImage
@@ -166,7 +164,7 @@
 		}
 	}
 	
-	IGrenadeSkin@ CreateViewGrenadeSkin(Renderer@ r, AudioDevice@ dev) {
-		return ViewGrenadeSkin(r, dev);
+	IGrenadeSkin@ CreateViewGrenadeSkin(Renderer@ r) {
+		return ViewGrenadeSkin(r);
 	}
 }

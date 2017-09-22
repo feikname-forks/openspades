@@ -22,24 +22,13 @@
 	class ViewShotgunSkin:
 	IToolSkin, IViewToolSkin, IWeaponSkin,
 	BasicViewWeapon {
-
-		private AudioDevice@ audioDevice;
 		private Model@ gunModel;
 		private Model@ pumpModel;
 		private Model@ sightModel1;
 		private Model@ sightModel2;
 
-		private AudioChunk@ fireSound;
-		private AudioChunk@ fireFarSound;
-		private AudioChunk@ fireStereoSound;
-		private AudioChunk@ fireSmallReverbSound;
-		private AudioChunk@ fireLargeReverbSound;
-		private AudioChunk@ reloadSound;
-		private AudioChunk@ cockSound;
-
-		ViewShotgunSkin(Renderer@ r, AudioDevice@ dev){
+		ViewShotgunSkin(Renderer@ r){
 			super(r);
-			@audioDevice = dev;
 			@gunModel = renderer.RegisterModel
 				("Models/Weapons/Shotgun/WeaponNoPump.kv6");
 			@pumpModel = renderer.RegisterModel
@@ -48,22 +37,6 @@
 				("Models/Weapons/Shotgun/Sight1.kv6");
 			@sightModel2 = renderer.RegisterModel
 				("Models/Weapons/Shotgun/Sight2.kv6");
-
-			@fireSound = dev.RegisterSound
-				("Sounds/Weapons/Shotgun/FireLocal.opus");
-			@fireFarSound = dev.RegisterSound
-				("Sounds/Weapons/Shotgun/FireFar.opus");
-			@fireStereoSound = dev.RegisterSound
-				("Sounds/Weapons/Shotgun/FireStereo.opus");
-			@reloadSound = dev.RegisterSound
-				("Sounds/Weapons/Shotgun/ReloadLocal.opus");
-			@cockSound = dev.RegisterSound
-				("Sounds/Weapons/Shotgun/CockLocal.opus");
-
-			@fireSmallReverbSound = dev.RegisterSound
-				("Sounds/Weapons/Shotgun/V2AmbienceSmall.opus");
-			@fireLargeReverbSound = dev.RegisterSound
-				("Sounds/Weapons/Shotgun/V2AmbienceLarge.opus");
 		}
 
 		void Update(float dt) {
@@ -72,42 +45,14 @@
 
 		void WeaponFired(){
 			BasicViewWeapon::WeaponFired();
-
-			if(!IsMuted){
-				Vector3 origin = Vector3(0.4f, -0.3f, 0.5f);
-				AudioParam param;
-				param.volume = 8.f;
-				audioDevice.PlayLocal(fireSound, origin, param);
-
-				param.volume = 8.f * environmentRoom;
-				if (environmentSize < 0.5f) {
-					audioDevice.PlayLocal(fireSmallReverbSound, origin, param);
-				} else {
-					audioDevice.PlayLocal(fireLargeReverbSound, origin, param);
-				}
-
-				param.volume = 2.f;
-				audioDevice.PlayLocal(fireFarSound, origin, param);
-				audioDevice.PlayLocal(fireStereoSound, origin, param);
-			}
 		}
 
 		void ReloadingWeapon() {
-			if(!IsMuted){
-				Vector3 origin = Vector3(0.4f, -0.3f, 0.5f);
-				AudioParam param;
-				param.volume = 0.2f;
-				audioDevice.PlayLocal(reloadSound, origin, param);
-			}
+
 		}
 
 		void ReloadedWeapon() {
-			if(!IsMuted){
-				Vector3 origin = Vector3(0.4f, -0.3f, 0.5f);
-				AudioParam param;
-				param.volume = 0.2f;
-				audioDevice.PlayLocal(cockSound, origin, param);
-			}
+
 		}
 
 		float GetZPos() {
@@ -242,7 +187,7 @@
 		}
 	}
 
-	IWeaponSkin@ CreateViewShotgunSkin(Renderer@ r, AudioDevice@ dev) {
-		return ViewShotgunSkin(r, dev);
+	IWeaponSkin@ CreateViewShotgunSkin(Renderer@ r) {
+		return ViewShotgunSkin(r);
 	}
 }

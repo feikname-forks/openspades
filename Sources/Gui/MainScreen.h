@@ -21,7 +21,6 @@
 #pragma once
 
 #include "View.h"
-#include <Client/IAudioDevice.h>
 #include <Client/IRenderer.h>
 #include <Core/RefCountedObject.h>
 #include <Core/ServerAddress.h>
@@ -36,7 +35,6 @@ namespace spades {
 		class MainScreen : public View {
 			friend class MainScreenHelper;
 			Handle<client::IRenderer> renderer;
-			Handle<client::IAudioDevice> audioDevice;
 			Handle<View> subview;
 			Handle<client::FontManager> fontManager;
 			float timeToStartInitialization;
@@ -55,10 +53,9 @@ namespace spades {
 			~MainScreen();
 
 		public:
-			MainScreen(client::IRenderer *, client::IAudioDevice *, client::FontManager *);
+			MainScreen(client::IRenderer *, client::FontManager *);
 
 			client::IRenderer *GetRenderer() { return &*renderer; }
-			client::IAudioDevice *GetAudioDevice() { return &*audioDevice; }
 
 			void MouseEvent(float x, float y) override;
 			void KeyEvent(const std::string &, bool down) override;

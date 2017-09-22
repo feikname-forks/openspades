@@ -63,12 +63,10 @@
 		}
 		
 		private Renderer@ renderer;
-		private AudioDevice@ audioDevice;
 		private Model@ model;
 		
-		ThirdPersonGrenadeSkin(Renderer@ r, AudioDevice@ dev) {
+		ThirdPersonGrenadeSkin(Renderer@ r) {
 			@renderer = r;
-			@audioDevice = dev;
 			@model = renderer.RegisterModel
 				("Models/Weapons/Grenade/Grenade.kv6");
 		}
@@ -87,7 +85,7 @@
 		}
 	}
 	
-	IGrenadeSkin@ CreateThirdPersonGrenadeSkin(Renderer@ r, AudioDevice@ dev) {
-		return ThirdPersonGrenadeSkin(r, dev);
+	IGrenadeSkin@ CreateThirdPersonGrenadeSkin(Renderer@ r) {
+		return ThirdPersonGrenadeSkin(r);
 	}
 }

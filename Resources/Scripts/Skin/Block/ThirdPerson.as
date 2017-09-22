@@ -63,12 +63,10 @@
 		}
 		
 		private Renderer@ renderer;
-		private AudioDevice@ audioDevice;
 		private Model@ model;
 		
-		ThirdPersonBlockSkin(Renderer@ r, AudioDevice@ dev) {
+		ThirdPersonBlockSkin(Renderer@ r) {
 			@renderer = r;
-			@audioDevice = dev;
 			@model = renderer.RegisterModel
 				("Models/Weapons/Block/Block2.kv6");
 		}
@@ -88,7 +86,7 @@
 		}
 	}
 	
-	IBlockSkin@ CreateThirdPersonBlockSkin(Renderer@ r, AudioDevice@ dev) {
-		return ThirdPersonBlockSkin(r, dev);
+	IBlockSkin@ CreateThirdPersonBlockSkin(Renderer@ r) {
+		return ThirdPersonBlockSkin(r);
 	}
 }

@@ -25,9 +25,6 @@
 #include <Core/Settings.h>
 #include <Core/Strings.h>
 
-#include "IAudioChunk.h"
-#include "IAudioDevice.h"
-
 #include "CenterMessageView.h"
 #include "ChatWindow.h"
 #include "ClientPlayer.h"
@@ -126,12 +123,6 @@ namespace spades {
 
 			world->GetLocalPlayer()->SetTool(type);
 			net->SendTool();
-
-			if (!quiet) {
-				Handle<IAudioChunk> c =
-				  audioDevice->RegisterSound("Sounds/Weapons/SwitchLocal.opus");
-				audioDevice->PlayLocal(c, MakeVector3(.4f, -.3f, .5f), AudioParam());
-			}
 		}
 
 #pragma mark - World Update
@@ -497,23 +488,6 @@ namespace spades {
 				lastHealth = player->GetHealth();
 				lastHurtTime = world->GetTime();
 
-				Handle<IAudioChunk> c;
-				switch ((mt_engine_client() >> 3) & 3) {
-					case 0:
-						c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/FleshLocal1.opus");
-						break;
-					case 1:
-						c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/FleshLocal2.opus");
-						break;
-					case 2:
-						c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/FleshLocal3.opus");
-						break;
-					case 3:
-						c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/FleshLocal4.opus");
-						break;
-				}
-				audioDevice->PlayLocal(c, AudioParam());
-
 				float hpper = player->GetHealth() / 100.f;
 				int cnt = 18 - (int)(player->GetHealth() / 100.f * 8.f);
 				hurtSprites.resize(std::max(cnt, 6));
@@ -550,63 +524,14 @@ namespace spades {
 
 		void Client::PlayerJumped(spades::client::Player *p) {
 			SPADES_MARK_FUNCTION();
-
-			if (!IsMuted()) {
-
-				Handle<IAudioChunk> c =
-				  p->GetWade() ? audioDevice->RegisterSound("Sounds/Player/WaterJump.opus")
-				               : audioDevice->RegisterSound("Sounds/Player/Jump.opus");
-				audioDevice->Play(c, p->GetOrigin(), AudioParam());
-			}
 		}
 
 		void Client::PlayerLanded(spades::client::Player *p, bool hurt) {
 			SPADES_MARK_FUNCTION();
-
-			if (!IsMuted()) {
-				Handle<IAudioChunk> c;
-				if (hurt)
-					c = audioDevice->RegisterSound("Sounds/Player/FallHurt.opus");
-				else if (p->GetWade())
-					c = audioDevice->RegisterSound("Sounds/Player/WaterLand.opus");
-				else
-					c = audioDevice->RegisterSound("Sounds/Player/Land.opus");
-				audioDevice->Play(c, p->GetOrigin(), AudioParam());
-			}
 		}
 
 		void Client::PlayerMadeFootstep(spades::client::Player *p) {
 			SPADES_MARK_FUNCTION();
-
-			if (!IsMuted()) {
-				const char *snds[] = {"Sounds/Player/Footstep1.opus", "Sounds/Player/Footstep2.opus",
-				                      "Sounds/Player/Footstep3.opus", "Sounds/Player/Footstep4.opus",
-				                      "Sounds/Player/Footstep5.opus", "Sounds/Player/Footstep6.opus",
-				                      "Sounds/Player/Footstep7.opus", "Sounds/Player/Footstep8.opus"};
-				const char *rsnds[] = {
-				  "Sounds/Player/Run1.opus",  "Sounds/Player/Run2.opus",  "Sounds/Player/Run3.opus",
-				  "Sounds/Player/Run4.opus",  "Sounds/Player/Run5.opus",  "Sounds/Player/Run6.opus",
-				  "Sounds/Player/Run7.opus",  "Sounds/Player/Run8.opus",  "Sounds/Player/Run9.opus",
-				  "Sounds/Player/Run10.opus", "Sounds/Player/Run11.opus", "Sounds/Player/Run12.opus",
-				};
-				const char *wsnds[] = {"Sounds/Player/Wade1.opus", "Sounds/Player/Wade2.opus",
-				                       "Sounds/Player/Wade3.opus", "Sounds/Player/Wade4.opus",
-				                       "Sounds/Player/Wade5.opus", "Sounds/Player/Wade6.opus",
-				                       "Sounds/Player/Wade7.opus", "Sounds/Player/Wade8.opus"};
-				bool sprinting = clientPlayers[p->GetId()]
-				                   ? clientPlayers[p->GetId()]->GetSprintState() > 0.5f
-				                   : false;
-				Handle<IAudioChunk> c =
-				  p->GetWade() ? audioDevice->RegisterSound(wsnds[(mt_engine_client() >> 8) % 8])
-				               : audioDevice->RegisterSound(snds[(mt_engine_client() >> 8) % 8]);
-				audioDevice->Play(c, p->GetOrigin(), AudioParam());
-				if (sprinting && !p->GetWade()) {
-					AudioParam param;
-					param.volume *= clientPlayers[p->GetId()]->GetSprintState();
-					c = audioDevice->RegisterSound(rsnds[(mt_engine_client() >> 8) % 12]);
-					audioDevice->Play(c, p->GetOrigin(), param);
-				}
-			}
 		}
 
 		void Client::PlayerFiredWeapon(spades::client::Player *p) {
@@ -620,17 +545,6 @@ namespace spades {
 		}
 		void Client::PlayerDryFiredWeapon(spades::client::Player *p) {
 			SPADES_MARK_FUNCTION();
-
-			if (!IsMuted()) {
-				bool isLocal = p == world->GetLocalPlayer();
-				Handle<IAudioChunk> c = audioDevice->RegisterSound("Sounds/Weapons/DryFire.opus");
-				if (isLocal)
-					audioDevice->PlayLocal(c, MakeVector3(.4f, -.3f, .5f), AudioParam());
-				else
-					audioDevice->Play(c, p->GetEye() + p->GetFront() * 0.5f - p->GetUp() * .3f +
-					                       p->GetRight() * .4f,
-					                  AudioParam());
-			}
 		}
 
 		void Client::PlayerReloadingWeapon(spades::client::Player *p) {
@@ -647,73 +561,18 @@ namespace spades {
 
 		void Client::PlayerChangedTool(spades::client::Player *p) {
 			SPADES_MARK_FUNCTION();
-
-			if (!IsMuted()) {
-				bool isLocal = p == world->GetLocalPlayer();
-				Handle<IAudioChunk> c;
-				if (isLocal) {
-					// played by ClientPlayer::Update
-					return;
-				} else {
-					c = audioDevice->RegisterSound("Sounds/Weapons/Switch.opus");
-				}
-				if (isLocal)
-					audioDevice->PlayLocal(c, MakeVector3(.4f, -.3f, .5f), AudioParam());
-				else
-					audioDevice->Play(c, p->GetEye() + p->GetFront() * 0.5f - p->GetUp() * .3f +
-					                       p->GetRight() * .4f,
-					                  AudioParam());
-			}
 		}
 
 		void Client::PlayerRestocked(spades::client::Player *p) {
-			if (!IsMuted()) {
-				bool isLocal = p == world->GetLocalPlayer();
-				Handle<IAudioChunk> c =
-				  isLocal ? audioDevice->RegisterSound("Sounds/Weapons/RestockLocal.opus")
-				          : audioDevice->RegisterSound("Sounds/Weapons/Restock.opus");
-				if (isLocal)
-					audioDevice->PlayLocal(c, MakeVector3(.4f, -.3f, .5f), AudioParam());
-				else
-					audioDevice->Play(c, p->GetEye() + p->GetFront() * 0.5f - p->GetUp() * .3f +
-					                       p->GetRight() * .4f,
-					                  AudioParam());
-			}
+			// TODO: Remove this function
 		}
 
 		void Client::PlayerThrownGrenade(spades::client::Player *p, Grenade *g) {
 			SPADES_MARK_FUNCTION();
-
-			if (!IsMuted()) {
-				bool isLocal = p == world->GetLocalPlayer();
-				Handle<IAudioChunk> c =
-				  audioDevice->RegisterSound("Sounds/Weapons/Grenade/Throw.opus");
-
-				if (g && isLocal) {
-					net->SendGrenade(g);
-				}
-
-				if (isLocal)
-					audioDevice->PlayLocal(c, MakeVector3(.4f, 0.1f, .3f), AudioParam());
-				else
-					audioDevice->Play(c, p->GetEye() + p->GetFront() * 0.5f - p->GetUp() * .2f +
-					                       p->GetRight() * .3f,
-					                  AudioParam());
-			}
 		}
 
 		void Client::PlayerMissedSpade(spades::client::Player *p) {
 			SPADES_MARK_FUNCTION();
-
-			if (!IsMuted()) {
-				bool isLocal = p == world->GetLocalPlayer();
-				Handle<IAudioChunk> c = audioDevice->RegisterSound("Sounds/Weapons/Spade/Miss.opus");
-				if (isLocal)
-					audioDevice->PlayLocal(c, MakeVector3(.2f, -.1f, 0.7f), AudioParam());
-				else
-					audioDevice->Play(c, p->GetOrigin() + p->GetFront() * 0.8f - p->GetUp() * .2f,
-					                  AudioParam());
-			}
 		}
 
 		void Client::PlayerHitBlockWithSpade(spades::client::Player *p, Vector3 hitPos,
@@ -732,45 +591,10 @@ namespace spades {
 			if (p == world->GetLocalPlayer()) {
 				localFireVibrationTime = time;
 			}
-
-			if (!IsMuted()) {
-				bool isLocal = p == world->GetLocalPlayer();
-				Handle<IAudioChunk> c =
-				  audioDevice->RegisterSound("Sounds/Weapons/Spade/HitBlock.opus");
-				if (isLocal)
-					audioDevice->PlayLocal(c, MakeVector3(.1f, -.1f, 1.2f), AudioParam());
-				else
-					audioDevice->Play(c, p->GetOrigin() + p->GetFront() * 0.5f - p->GetUp() * .2f,
-					                  AudioParam());
-			}
 		}
 
 		void Client::PlayerKilledPlayer(spades::client::Player *killer,
 		                                spades::client::Player *victim, KillType kt) {
-			// play hit sound
-			if (kt == KillTypeWeapon || kt == KillTypeHeadshot) {
-				// don't play on local: see BullethitPlayer
-				if (victim != world->GetLocalPlayer()) {
-					if (!IsMuted()) {
-						Handle<IAudioChunk> c;
-						switch (mt_engine_client() % 3) {
-							case 0:
-								c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/Flesh1.opus");
-								break;
-							case 1:
-								c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/Flesh2.opus");
-								break;
-							case 2:
-								c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/Flesh3.opus");
-								break;
-						}
-						AudioParam param;
-						param.volume = 4.f;
-						audioDevice->Play(c, victim->GetEye(), param);
-					}
-				}
-			}
-
 			// begin following
 			if (victim == world->GetLocalPlayer()) {
 				followingPlayerId = victim->GetId();
@@ -931,30 +755,6 @@ namespace spades {
 				return;
 			}
 
-			if (!IsMuted()) {
-				if (type == HitTypeMelee) {
-					Handle<IAudioChunk> c =
-					  audioDevice->RegisterSound("Sounds/Weapons/Spade/HitPlayer.opus");
-					audioDevice->Play(c, hitPos, AudioParam());
-				} else {
-					Handle<IAudioChunk> c;
-					switch ((mt_engine_client() >> 6) % 3) {
-						case 0:
-							c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/Flesh1.opus");
-							break;
-						case 1:
-							c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/Flesh2.opus");
-							break;
-						case 2:
-							c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/Flesh3.opus");
-							break;
-					}
-					AudioParam param;
-					param.volume = 4.f;
-					audioDevice->Play(c, hitPos, param);
-				}
-			}
-
 			if (by == world->GetLocalPlayer() && hurtPlayer) {
 				net->SendHit(hurtPlayer->GetId(), type);
 
@@ -979,66 +779,8 @@ namespace spades {
 
 			if (blockPos.z == 63) {
 				BulletHitWaterSurface(shiftedHitPos);
-				if (!IsMuted()) {
-					AudioParam param;
-					param.volume = 2.f;
-
-					Handle<IAudioChunk> c;
-
-					param.pitch = .9f + GetRandom() * 0.2f;
-					switch ((mt_engine_client() >> 6) & 3) {
-						case 0:
-							c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/Water1.opus");
-							break;
-						case 1:
-							c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/Water2.opus");
-							break;
-						case 2:
-							c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/Water3.opus");
-							break;
-						case 3:
-							c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/Water4.opus");
-							break;
-					}
-					audioDevice->Play(c, shiftedHitPos, param);
-				}
 			} else {
 				EmitBlockFragments(shiftedHitPos, colV);
-
-				if (!IsMuted()) {
-					AudioParam param;
-					param.volume = 2.f;
-
-					Handle<IAudioChunk> c;
-
-					switch ((mt_engine_client() >> 6) & 3) {
-						case 0:
-						case 1:
-						case 2:
-						case 3:
-							c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/Block.opus");
-							break;
-					}
-					audioDevice->Play(c, shiftedHitPos, param);
-
-					param.pitch = .9f + GetRandom() * 0.2f;
-					param.volume = 2.f;
-					switch ((mt_engine_client() >> 6) & 3) {
-						case 0:
-							c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/Ricochet1.opus");
-							break;
-						case 1:
-							c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/Ricochet2.opus");
-							break;
-						case 2:
-							c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/Ricochet3.opus");
-							break;
-						case 3:
-							c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/Ricochet4.opus");
-							break;
-					}
-					audioDevice->Play(c, shiftedHitPos, param);
-				}
 			}
 		}
 
@@ -1067,41 +809,14 @@ namespace spades {
 				return;
 			FallingBlock *b = new FallingBlock(this, blocks);
 			AddLocalEntity(b);
-
-			if (!IsMuted()) {
-
-				IntVector3 v = blocks[0];
-				Vector3 o;
-				o.x = v.x;
-				o.y = v.y;
-				o.z = v.z;
-				o += .5f;
-
-				Handle<IAudioChunk> c = audioDevice->RegisterSound("Sounds/Misc/BlockFall.opus");
-				audioDevice->Play(c, o, AudioParam());
-			}
 		}
 
 		void Client::GrenadeBounced(spades::client::Grenade *g) {
 			SPADES_MARK_FUNCTION();
-
-			if (g->GetPosition().z < 63.f) {
-				if (!IsMuted()) {
-					Handle<IAudioChunk> c =
-					  audioDevice->RegisterSound("Sounds/Weapons/Grenade/Bounce.opus");
-					audioDevice->Play(c, g->GetPosition(), AudioParam());
-				}
-			}
 		}
 
 		void Client::GrenadeDroppedIntoWater(spades::client::Grenade *g) {
 			SPADES_MARK_FUNCTION();
-
-			if (!IsMuted()) {
-				Handle<IAudioChunk> c =
-				  audioDevice->RegisterSound("Sounds/Weapons/Grenade/DropWater.opus");
-				audioDevice->Play(c, g->GetPosition(), AudioParam());
-			}
 		}
 
 		void Client::GrenadeExploded(spades::client::Grenade *g) {
@@ -1110,83 +825,14 @@ namespace spades {
 			bool inWater = g->GetPosition().z > 63.f;
 
 			if (inWater) {
-				if (!IsMuted()) {
-					Handle<IAudioChunk> c =
-					  audioDevice->RegisterSound("Sounds/Weapons/Grenade/WaterExplode.opus");
-					AudioParam param;
-					param.volume = 10.f;
-					audioDevice->Play(c, g->GetPosition(), param);
-
-					c = audioDevice->RegisterSound("Sounds/Weapons/Grenade/WaterExplodeFar.opus");
-					param.volume = 6.f;
-					param.referenceDistance = 10.f;
-					audioDevice->Play(c, g->GetPosition(), param);
-
-					c = audioDevice->RegisterSound("Sounds/Weapons/Grenade/WaterExplodeStereo.opus");
-					param.volume = 2.f;
-					audioDevice->Play(c, g->GetPosition(), param);
-				}
-
 				GrenadeExplosionUnderwater(g->GetPosition());
 			} else {
-
 				GrenadeExplosion(g->GetPosition());
-
-				if (!IsMuted()) {
-					Handle<IAudioChunk> c, cs;
-
-					switch ((mt_engine_client() >> 8) & 1) {
-						case 0:
-							c = audioDevice->RegisterSound("Sounds/Weapons/Grenade/Explode1.opus");
-							cs = audioDevice->RegisterSound(
-							  "Sounds/Weapons/Grenade/ExplodeStereo1.opus");
-							break;
-						case 1:
-							c = audioDevice->RegisterSound("Sounds/Weapons/Grenade/Explode2.opus");
-							cs = audioDevice->RegisterSound(
-							  "Sounds/Weapons/Grenade/ExplodeStereo2.opus");
-							break;
-					}
-
-					AudioParam param;
-					param.volume = 30.f;
-					param.referenceDistance = 5.f;
-					audioDevice->Play(c, g->GetPosition(), param);
-
-					param.referenceDistance = 1.f;
-					audioDevice->Play(cs, g->GetPosition(), param);
-
-					c = audioDevice->RegisterSound("Sounds/Weapons/Grenade/ExplodeFar.opus");
-					param.volume = 6.f;
-					param.referenceDistance = 40.f;
-					audioDevice->Play(c, g->GetPosition(), param);
-
-					c = audioDevice->RegisterSound("Sounds/Weapons/Grenade/ExplodeFarStereo.opus");
-					param.referenceDistance = 10.f;
-					audioDevice->Play(c, g->GetPosition(), param);
-
-					// debri sound
-					c = audioDevice->RegisterSound("Sounds/Weapons/Grenade/Debris.opus");
-					param.volume = 5.f;
-					param.referenceDistance = 3.f;
-					IntVector3 outPos;
-					Vector3 soundPos = g->GetPosition();
-					if (world->GetMap()->CastRay(soundPos, MakeVector3(0, 0, 1), 8.f, outPos)) {
-						soundPos.z = (float)outPos.z - .2f;
-					}
-					audioDevice->Play(c, soundPos, param);
-				}
 			}
 		}
 
 		void Client::LocalPlayerPulledGrenadePin() {
 			SPADES_MARK_FUNCTION();
-
-			if (!IsMuted()) {
-				Handle<IAudioChunk> c =
-				  audioDevice->RegisterSound("Sounds/Weapons/Grenade/Fire.opus");
-				audioDevice->PlayLocal(c, MakeVector3(.4f, -.3f, .5f), AudioParam());
-			}
 		}
 
 		void Client::LocalPlayerBlockAction(spades::IntVector3 v, BlockActionType type) {
@@ -1216,7 +862,6 @@ namespace spades {
 			SPADES_MARK_FUNCTION();
 
 			if (!cg_alerts) {
-				PlayAlertSound();
 				return;
 			}
 

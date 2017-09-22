@@ -34,15 +34,13 @@ DEFINE_SPADES_SETTING(cg_playerName, "Deuce");
 
 namespace spades {
 	namespace gui {
-		MainScreen::MainScreen(client::IRenderer *r, client::IAudioDevice *a,
+		MainScreen::MainScreen(client::IRenderer *r,
 		                       client::FontManager *fontManager)
-		    : renderer(r), audioDevice(a), fontManager(fontManager) {
+		    : renderer(r), fontManager(fontManager) {
 			SPADES_MARK_FUNCTION();
 			if (r == NULL)
 				SPInvalidArgument("r");
-			if (a == NULL)
-				SPInvalidArgument("a");
-
+			
 			helper = new MainScreenHelper(this);
 
 			// first call to RunFrame tends to have larger dt value.
@@ -280,13 +278,12 @@ namespace spades {
 
 			ScopedPrivilegeEscalation privilege;
 			static ScriptFunction uiFactory("MainScreenUI@ CreateMainScreenUI(Renderer@, "
-			                                "AudioDevice@, FontManager@, MainScreenHelper@)");
+			                                "FontManager@, MainScreenHelper@)");
 			{
 				ScriptContextHandle ctx = uiFactory.Prepare();
 				ctx->SetArgObject(0, renderer);
-				ctx->SetArgObject(1, audioDevice);
-				ctx->SetArgObject(2, fontManager);
-				ctx->SetArgObject(3, &*helper);
+				ctx->SetArgObject(1, fontManager);
+				ctx->SetArgObject(2, &*helper);
 
 				ctx.ExecuteChecked();
 				ui = reinterpret_cast<asIScriptObject *>(ctx->GetReturnObject());
@@ -312,7 +309,7 @@ namespace spades {
 
 		std::string MainScreen::Connect(const ServerAddress &host) {
 			try {
-				subview.Set(new client::Client(&*renderer, &*audioDevice, host,
+				subview.Set(new client::Client(&*renderer, host,
 				                               fontManager),
 				            false);
 			} catch (const std::exception &ex) {

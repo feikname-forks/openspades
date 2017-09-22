@@ -28,7 +28,6 @@ namespace spades {
 	namespace client {
 		class IRenderer;
 		class Client;
-		class IAudioChunk;
 		class GunCasing : public ILocalEntity {
 			Client *client;
 			IRenderer *renderer;
@@ -37,17 +36,13 @@ namespace spades {
 			Vector3 rotAxis;
 			Vector3 vel;
 
-			IAudioChunk *dropSound;
-			IAudioChunk *waterSound;
-
 			bool onGround;
 			IntVector3 groundPos;
 			float groundTime;
 			float rotSpeed;
 
 		public:
-			GunCasing(Client *client, IModel *model, IAudioChunk *dropSound,
-			          IAudioChunk *waterSound, Vector3 pos, Vector3 dir, Vector3 flyDir);
+			GunCasing(Client *client, IModel *model, Vector3 pos, Vector3 dir, Vector3 flyDir);
 			~GunCasing();
 			bool Update(float dt) override;
 			void Render3D() override;

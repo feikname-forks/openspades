@@ -30,7 +30,6 @@
 namespace spades {
 	namespace client {
 		class IRenderer;
-		class IAudioDevice;
 	}
 	namespace gui {
 		class View;
@@ -47,9 +46,8 @@ namespace spades {
 			std::string TranslateButton(Uint8 b);
 			virtual int GetModState();
 			void ProcessEvent(SDL_Event &event, View *);
-			virtual void RunClientLoop(client::IRenderer *renderer, client::IAudioDevice *dev);
-			virtual View *CreateView(client::IRenderer *renderer, client::IAudioDevice *dev) = 0;
-			virtual client::IAudioDevice *CreateAudioDevice();
+			virtual void RunClientLoop(client::IRenderer *renderer);
+			virtual View *CreateView(client::IRenderer *renderer) = 0;
 			client::IRenderer *CreateRenderer(SDL_Window *);
 
 		public:

@@ -21,7 +21,6 @@
 #include "StartupScreen.h"
 
 #include "StartupScreenHelper.h"
-#include <Audio/NullDevice.h>
 #include <Client/Client.h>
 #include <Client/Fonts.h>
 #include <Client/Quake3Font.h>
@@ -34,18 +33,15 @@
 
 namespace spades {
 	namespace gui {
-		StartupScreen::StartupScreen(client::IRenderer *r, client::IAudioDevice *a,
+		StartupScreen::StartupScreen(client::IRenderer *r,
 		                             StartupScreenHelper *helper, client::FontManager *fontManager)
 		    : renderer(r),
-		      audioDevice(a),
 		      startRequested(false),
 		      helper(helper),
 		      fontManager(fontManager) {
 			SPADES_MARK_FUNCTION();
 			if (r == NULL)
 				SPInvalidArgument("r");
-			if (a == NULL)
-				SPInvalidArgument("a");
 
 			helper->BindStartupScreen(this);
 
@@ -225,13 +221,12 @@ namespace spades {
 
 			ScopedPrivilegeEscalation privilege;
 			static ScriptFunction uiFactory("StartupScreenUI@ CreateStartupScreenUI(Renderer@, "
-			                                "AudioDevice@, FontManager@, StartupScreenHelper@)");
+			                                "FontManager@, StartupScreenHelper@)");
 			{
 				ScriptContextHandle ctx = uiFactory.Prepare();
 				ctx->SetArgObject(0, renderer);
-				ctx->SetArgObject(1, audioDevice);
-				ctx->SetArgObject(2, fontManager);
-				ctx->SetArgObject(3, &*helper);
+				ctx->SetArgObject(1, fontManager);
+				ctx->SetArgObject(2, &*helper);
 
 				ctx.ExecuteChecked();
 				ui = reinterpret_cast<asIScriptObject *>(ctx->GetReturnObject());
@@ -266,13 +261,10 @@ namespace spades {
 
 			protected:
 				virtual auto GetRendererType() -> RendererType { return RendererType::SW; }
-				virtual client::IAudioDevice *CreateAudioDevice() {
-					return new audio::NullDevice();
-				}
-				virtual View *CreateView(client::IRenderer *renderer, client::IAudioDevice *dev) {
+				virtual View *CreateView(client::IRenderer *renderer) {
 					Handle<client::FontManager> fontManager(new client::FontManager(renderer),
 					                                        false);
-					view.Set(new StartupScreen(renderer, dev, helper, fontManager), true);
+					view.Set(new StartupScreen(renderer,  helper, fontManager), true);
 					return view;
 				}
 
@@ -293,6 +285,6 @@ namespace spades {
 
 			if (startFlag)
 				spades::StartMainScreen();
-		}
+}
 	}
 }

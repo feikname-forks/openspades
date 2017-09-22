@@ -20,7 +20,6 @@
  */
 #pragma once
 
-#include <Client/IAudioDevice.h>
 #include <Client/IRenderer.h>
 #include <Core/RefCountedObject.h>
 #include <Gui/View.h>
@@ -34,7 +33,6 @@ namespace spades {
 		class ClientUI : public RefCountedObject {
 			friend class ClientUIHelper;
 			Handle<IRenderer> renderer;
-			Handle<IAudioDevice> audioDevice;
 			Handle<FontManager> fontManager;
 
 			Handle<ClientUIHelper> helper;
@@ -54,11 +52,10 @@ namespace spades {
 			~ClientUI();
 
 		public:
-			ClientUI(IRenderer *, IAudioDevice *, FontManager *font, Client *client);
+			ClientUI(IRenderer *, FontManager *font, Client *client);
 			void ClientDestroyed();
 
 			client::IRenderer *GetRenderer() { return &*renderer; }
-			client::IAudioDevice *GetAudioDevice() { return &*audioDevice; }
 
 			void MouseEvent(float x, float y);
 			void WheelEvent(float x, float y);

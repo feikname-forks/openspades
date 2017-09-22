@@ -24,9 +24,6 @@
 #include <Core/Settings.h>
 #include <Core/Strings.h>
 
-#include "IAudioChunk.h"
-#include "IAudioDevice.h"
-
 #include "ClientUI.h"
 #include "Corpse.h"
 #include "LimboView.h"
@@ -386,11 +383,6 @@ namespace spades {
 						    !lastVal && world->GetLocalPlayer()->IsReadyToUseTool() &&
 						    !world->GetLocalPlayer()->GetWeapon()->IsReloading() &&
 							GetSprintState() == 0.0f) {
-							AudioParam params;
-							params.volume = 0.08f;
-							Handle<IAudioChunk> chunk =
-							  audioDevice->RegisterSound("Sounds/Weapons/AimDownSightLocal.opus");
-							audioDevice->PlayLocal(chunk, MakeVector3(.4f, -.3f, .5f), params);
 						}
 					} else if (CheckKey(cg_keyReloadWeapon, name) && down) {
 						Weapon *w = world->GetLocalPlayer()->GetWeapon();
@@ -437,8 +429,6 @@ namespace spades {
 							} else {
 								if (cg_alerts)
 									ShowAlert(_Tr("Client", "Out of Ammo"), AlertType::Error);
-								else
-									PlayAlertSound();
 							}
 						}
 					} else if (CheckKey(cg_keyToolGrenade, name) && down) {
@@ -449,8 +439,6 @@ namespace spades {
 							} else {
 								if (cg_alerts)
 									ShowAlert(_Tr("Client", "Out of Grenades"), AlertType::Error);
-								else
-									PlayAlertSound();
 							}
 						}
 					} else if (CheckKey(cg_keyLastTool, name) && down) {
@@ -476,18 +464,8 @@ namespace spades {
 						CaptureColor();
 					} else if (CheckKey(cg_keyChangeMapScale, name) && down) {
 						mapView->SwitchScale();
-						Handle<IAudioChunk> chunk =
-						  audioDevice->RegisterSound("Sounds/Misc/SwitchMapZoom.opus");
-						audioDevice->PlayLocal(chunk, AudioParam());
 					} else if (CheckKey(cg_keyToggleMapZoom, name) && down) {
 						if (largeMapView->ToggleZoom()) {
-							Handle<IAudioChunk> chunk =
-							  audioDevice->RegisterSound("Sounds/Misc/OpenMap.opus");
-							audioDevice->PlayLocal(chunk, AudioParam());
-						} else {
-							Handle<IAudioChunk> chunk =
-							  audioDevice->RegisterSound("Sounds/Misc/CloseMap.opus");
-							audioDevice->PlayLocal(chunk, AudioParam());
 						}
 					} else if (CheckKey(cg_keyScoreboard, name)) {
 						scoreboardVisible = down;
@@ -505,9 +483,6 @@ namespace spades {
 					} else if (CheckKey(cg_keyFlashlight, name) && down) {
 						flashlightOn = !flashlightOn;
 						flashlightOnTime = time;
-						Handle<IAudioChunk> chunk =
-						  audioDevice->RegisterSound("Sounds/Player/Flashlight.opus");
-						audioDevice->PlayLocal(chunk, AudioParam());
 					} else if (CheckKey(cg_keyAutoFocus, name) && down && (int)cg_manualFocus) {
 						autoFocusEnabled = true;
 					} else if (down) {
@@ -559,8 +534,6 @@ namespace spades {
 							}
 						}
 					}
-				} else {
-					// limbo
 				}
 			}
 		}

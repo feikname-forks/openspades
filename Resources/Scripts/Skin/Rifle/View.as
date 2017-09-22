@@ -22,23 +22,14 @@
 	class ViewRifleSkin:
 	IToolSkin, IViewToolSkin, IWeaponSkin,
 	BasicViewWeapon {
-
-		private AudioDevice@ audioDevice;
 		private Model@ gunModel;
 		private Model@ magazineModel;
 
-		private AudioChunk@ fireSound;
-		private AudioChunk@ fireFarSound;
-		private AudioChunk@ fireStereoSound;
-		private AudioChunk@ fireSmallReverbSound;
-		private AudioChunk@ fireLargeReverbSound;
-		private AudioChunk@ reloadSound;
 		private Model@ sightModel1;
 		private Model@ sightModel2;
 
-		ViewRifleSkin(Renderer@ r, AudioDevice@ dev){
+		ViewRifleSkin(Renderer@ r){
 			super(r);
-			@audioDevice = dev;
 			@gunModel = renderer.RegisterModel
 				("Models/Weapons/Rifle/WeaponNoMagazine.kv6");
 			@magazineModel = renderer.RegisterModel
@@ -47,20 +38,6 @@
 				("Models/Weapons/Rifle/Sight1.kv6");
 			@sightModel2 = renderer.RegisterModel
 				("Models/Weapons/Rifle/Sight2.kv6");
-
-			@fireSound = dev.RegisterSound
-				("Sounds/Weapons/Rifle/FireLocal.opus");
-			@fireFarSound = dev.RegisterSound
-				("Sounds/Weapons/Rifle/FireFar.opus");
-			@fireStereoSound = dev.RegisterSound
-				("Sounds/Weapons/Rifle/FireStereo.opus");
-			@reloadSound = dev.RegisterSound
-				("Sounds/Weapons/Rifle/ReloadLocal.opus");
-
-			@fireSmallReverbSound = dev.RegisterSound
-				("Sounds/Weapons/Rifle/V2AmbienceSmall.opus");
-			@fireLargeReverbSound = dev.RegisterSound
-				("Sounds/Weapons/Rifle/V2AmbienceLarge.opus");
 		}
 
 		void Update(float dt) {
@@ -69,35 +46,9 @@
 
 		void WeaponFired(){
 			BasicViewWeapon::WeaponFired();
-
-			if(!IsMuted){
-				Vector3 origin = Vector3(0.4f, -0.3f, 0.5f);
-				AudioParam param;
-				param.volume = 8.f;
-				audioDevice.PlayLocal(fireSound, origin, param);
-
-				param.volume = 8.f * environmentRoom;
-				if (environmentSize < 0.5f) {
-					audioDevice.PlayLocal(fireSmallReverbSound, origin, param);
-				} else {
-					audioDevice.PlayLocal(fireLargeReverbSound, origin, param);
-				}
-
-				param.referenceDistance = 4.f;
-				param.volume = 1.f;
-				audioDevice.PlayLocal(fireFarSound, origin, param);
-				param.referenceDistance = 1.f;
-				audioDevice.PlayLocal(fireStereoSound, origin, param);
-			}
 		}
 
 		void ReloadingWeapon() {
-			if(!IsMuted){
-				Vector3 origin = Vector3(0.4f, -0.3f, 0.5f);
-				AudioParam param;
-				param.volume = 0.2f;
-				audioDevice.PlayLocal(reloadSound, origin, param);
-			}
 		}
 
 		float GetZPos() {
@@ -224,7 +175,7 @@
 		}
 	}
 
-	IWeaponSkin@ CreateViewRifleSkin(Renderer@ r, AudioDevice@ dev) {
-		return ViewRifleSkin(r, dev);
+	IWeaponSkin@ CreateViewRifleSkin(Renderer@ r) {
+		return ViewRifleSkin(r);
 	}
 }
