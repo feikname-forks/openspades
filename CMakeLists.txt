@@ -51,11 +51,6 @@ if(NOT FREETYPE_FOUND)
 	message(FATAL_ERROR "FreeType not found, please install it (and make sure it's in your path)")
 endif()
 
-include(cmake/FindOpus.cmake)
-if(NOT OpusFile_FOUND)
-	message(FATAL_ERROR "libopus/libopusfile not found, please install it (and make sure it's in your path)")
-endif()
-
 if(CMAKE_COMPILER_IS_GNUCXX)
 	# GCC C++11 support
 	# from http://stackoverflow.com/questions/10984442/how-to-detect-c11-support-of-a-compiler-with-cmake
@@ -201,7 +196,6 @@ include_directories("${GLEW_INCLUDE_DIR}")
 include_directories("${ZLIB_INCLUDE_DIR}")
 include_directories(${CURL_INCLUDE_DIRS})
 include_directories(${FREETYPE_INCLUDE_DIRS})
-include_directories(${OpusFile_INCLUDE_DIR})
 
 add_subdirectory(Resources)
 add_subdirectory(Sources)

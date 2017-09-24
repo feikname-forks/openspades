@@ -1,8 +1,6 @@
 
 set(OS_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
-file(GLOB AUDIO_FILES Audio/*.cpp Audio/*.h)
-file(GLOB AUDIO_AL_FILES Audio/AL/*.cpp Audio/AL/*.h)
 set(BINPACK_FILES binpack2d/binpack2d.hpp)
 file(GLOB CLIENT_FILES Client/*.cpp Client/*.h)
 file(GLOB CORE_FILES Core/*.c Core/*.cpp Core/*.h)
@@ -37,7 +35,7 @@ if(WIN32)
 	endif()
 endif()
 
-add_executable(OpenSpades ${AUDIO_FILES} ${AUDIO_AL_FILES} ${BINPACK_FILES} ${CLIENT_FILES} ${CORE_FILES} ${DRAW_FILES} ${ENET_FILES} ${ENET_INCLUDE} ${GUI_FILES}
+add_executable(OpenSpades ${BINPACK_FILES} ${CLIENT_FILES} ${CORE_FILES} ${DRAW_FILES} ${ENET_FILES} ${ENET_INCLUDE} ${GUI_FILES}
 	${IMPORTS_FILES} ${KISS_FILES} ${JSON_FILES} ${JSON_INCLUDE} ${UNZIP_FILES} ${SCRIPTBINDING_FILES} ${RESOURCE_FILES})
 set_target_properties(OpenSpades PROPERTIES LINKER_LANGUAGE CXX)
 set_target_properties(OpenSpades PROPERTIES OUTPUT_NAME openspades)
@@ -78,8 +76,6 @@ if(WIN32)
 	endif()
 endif()
 
-source_group("Audio" FILES ${AUDIO_FILES})
-source_group("Audio\\AL" FILES ${AUDIO_AL_FILES})
 source_group("libs\\binpack2d" FILES ${BINPACK_FILES})
 source_group("Client" FILES ${CLIENT_FILES})
 source_group("Core" FILES ${CORE_FILES})
@@ -94,14 +90,9 @@ source_group("libs\\json\\include" FILES ${JSON_INCLUDE})
 source_group("ScriptBindings" FILES ${SCRIPTBINDING_FILES})
 source_group("libs\\unzip" FILES ${UNZIP_FILES})
 
-target_link_libraries(OpenSpades ${SDL2_LIBRARY} ${SDL2_IMAGE_LIBRARY} ${OPENGL_LIBRARIES} ${GLEW_LIBRARY} ${ZLIB_LIBRARIES} ${CURL_LIBRARY} ${FREETYPE_LIBRARIES} ${CMAKE_DL_LIBS} ${ANGELSCRIPT_LIBS} ${OpusFile_LIBRARY})
+target_link_libraries(OpenSpades ${SDL2_LIBRARY} ${SDL2_IMAGE_LIBRARY} ${OPENGL_LIBRARIES} ${GLEW_LIBRARY} ${ZLIB_LIBRARIES} ${CURL_LIBRARY} ${FREETYPE_LIBRARIES} ${CMAKE_DL_LIBS} ${ANGELSCRIPT_LIBS})
 
 #todo: MACOSX_BUNDLE_ICON_FILE ?
-
-if(OPENAL_FOUND)
-	target_link_libraries(OpenSpades ${OPENAL_LIBRARY})
-	include_directories(${OPENAL_INCLUDE_DIRS})
-endif()
 
 if(WIN32)
 	target_link_libraries(OpenSpades ws2_32.lib winmm.lib)
